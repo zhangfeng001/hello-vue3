@@ -7,14 +7,15 @@
         <div>{{item.text}}</div>
       </div>
     </div>
+    <a-button @click="handleInCount" type="primary">增加数量</a-button>
+    <a-button @click="handleReCount" type="danger">减少数量</a-button>
     <p>{{count}}</p>
   </div>
 </template>
 
 <script lang='ts'>
   import { computed, reactive } from 'vue'
-  import { useStore } from 'vuex'
-  import { key } from '../../store'
+  import { useStore  } from '../../store'
   import HelloWorld from '../../components/HelloWorld.vue'
   export default {
     name: 'App',
@@ -45,11 +46,19 @@
         return listState.todoList.filter(item => item.hobby)
       })
       // 获取store里的值
-      const store = useStore(key)
-      const count = computed(() => store.state.count)
+      const store = useStore()
+      const count = computed(() => store.state.userModule.count)
+      const handleInCount = () => {
+        store.commit('userModule/SET_INCREASE')
+      } 
+      const handleReCount = () => {
+        store.commit('userModule/SET_REDUCE')
+      }
       return {
         todos,
-        count
+        count,
+        handleInCount,
+        handleReCount
       }
     }
   }

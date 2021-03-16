@@ -20,7 +20,8 @@
     </div>
 </template>
 <script lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive } from 'vue';
+import { useStore } from '../../src/store';
 export default {
     setup(){
         const user =reactive({
@@ -29,11 +30,13 @@ export default {
         })
         const handleLogin = ()=>{
             console.log(user)
+            const store = useStore();
+            console.log(store)
         }
         return {
             user,
             handleLogin
         }
-    }
+    },
 }
 </script>
