@@ -6,7 +6,7 @@ const router = createRouter({
     routes: [
         {
             path: "/",
-            component: () => import('../views/home.vue'),
+            component: () => import('../views/vue3/home.vue'),
         },
         {
             path: "/login",
@@ -14,13 +14,17 @@ const router = createRouter({
         },
         {
             path: "/list",
-            component: () => import('../views/list.vue'),
+            component: () => import('../views/vue3/list.vue'),
         },
         {
             path: "/detail",
-            component: () => import('../views/detail.vue'),
+            component: () => import('../views/vue3/detail.vue'),
         },
     ],
 });
- 
+router.beforeEach((to,from)=>{
+    console.log('router')
+    
+})
+router.afterEach((to,from)=>{})
 export default router;
