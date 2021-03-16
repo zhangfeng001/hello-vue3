@@ -14,8 +14,8 @@
 <script lang='ts'>
   import { computed, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import { key } from '../store'
-  import HelloWorld from '../components/HelloWorld.vue'
+  import { key } from '../../store'
+  import HelloWorld from '../../components/HelloWorld.vue'
   export default {
     name: 'App',
     components: {
