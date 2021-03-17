@@ -1,9 +1,11 @@
 <template>
   <div>
+    <a-button type="primary"  style="margin-right:10px" @click="handleToTag(2)">去Options Api</a-button>
+    <a-button type="primary" @click="handleToTag(3)">去Composition Api</a-button>
     <HelloWorld msg="Hello Vue 3.0 + Vite(组件传递props)" />
     <div>
       <h1>爱好数量： {{todos.length}}</h1>
-      <div v-for="item in todos">
+      <div v-for="item in todos" :key="item.id">
         <div>{{item.text}}</div>
       </div>
     </div>
@@ -16,6 +18,7 @@
   import { useStore } from 'vuex'
   import { key } from '../../store'
   import HelloWorld from '../../components/HelloWorld.vue'
+import { useRouter } from 'vue-router'
   export default {
     name: 'App',
     components: {
@@ -44,12 +47,21 @@
       const todos = computed(()=>{
         return listState.todoList.filter(item => item.hobby)
       })
+      const router = useRouter()
+      function handleToTag (tag) {
+        tag == 2 ? router.push({
+          path:'/list2'
+        }): router.push({
+          path:'/list3'
+        })
+      }
       // 获取store里的值
       const store = useStore(key)
       const count = computed(() => store.state.count)
       return {
         todos,
-        count
+        count,
+        handleToTag
       }
     }
   }
