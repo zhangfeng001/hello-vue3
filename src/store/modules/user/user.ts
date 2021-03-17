@@ -5,17 +5,21 @@ import UserModuleTypes from '../user/interface'
 const userModule : Module<RootStateTypes,UserModuleTypes> = {
   namespaced:process.env.NODE_ENV !== 'production',
   state:{
-    userName:'zf',
-    psd:'666',
+    userName:'',
+    psd:'',
     count: 0,
+    token:''
   },
   mutations: {
     SET_USERNAME: (state, username) => {
       state.userName = username
     },
     SET_PSD: (state, psd) => {
-        state.psd = psd
-      },
+      state.psd = psd
+    },
+    SET_TOKEN: (state, token) => {
+      state.token = token
+    },
     SET_INCREASE(state) {
         state.count++
     },
