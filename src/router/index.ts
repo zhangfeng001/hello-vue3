@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory} from "vue-router"
- 
+import { useStore } from '../store'
 //  createRouter 创建路由
 const router = createRouter({
     history: createWebHashHistory(),
@@ -36,15 +36,17 @@ const router = createRouter({
         },
     ],
 });
-// router.beforeEach((to,from,next)=>{
-//     const token = false
+router.beforeEach((to,from,next)=>{
+    const store = useStore()
+//     const token = store.state.userModule.count.userName
+    console.log('token', store.state.userModule.count)
 //     if (!token) {
 //         if (to.name !== 'login') {
 //             next({path:'/login'})
 //         }
 //     }
-//     next()
+    next()
     
-// })
-// router.afterEach((to,from)=>{})
+})
+router.afterEach((to,from)=>{})
 export default router;
