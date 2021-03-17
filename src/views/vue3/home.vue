@@ -68,12 +68,8 @@ import { useRouter } from 'vue-router'
       return {
         todos,
         count,
-<<<<<<< HEAD
         handleInCount,
         handleReCount
-=======
-        handleToTag
->>>>>>> master
       }
     }
   }
