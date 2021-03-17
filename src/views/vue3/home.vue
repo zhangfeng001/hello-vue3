@@ -69,7 +69,8 @@ import { useRouter } from 'vue-router'
         todos,
         count,
         handleInCount,
-        handleReCount
+        handleReCount,
+        handleToTag
       }
     }
   }
