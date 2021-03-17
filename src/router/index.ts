@@ -6,25 +6,45 @@ const router = createRouter({
     routes: [
         {
             path: "/",
+            name:'index',
             component: () => import('../views/vue3/home.vue'),
         },
         {
             path: "/login",
+            name:'login',
             component: () => import('../views/login.vue'),
         },
         {
-            path: "/list",
+            path: "/list3",
+            name:'list3',
             component: () => import('../views/vue3/list.vue'),
         },
         {
-            path: "/detail",
+            path: "/detail3",
+            name:'detail3',
             component: () => import('../views/vue3/detail.vue'),
+        },
+        {
+            path: "/list2",
+            name:'list2',
+            component: () => import('../views/vue2/list.vue'),
+        },
+        {
+            path: "/detail2",
+            name:'detail2',
+            component: () => import('../views/vue2/detail.vue'),
         },
     ],
 });
-router.beforeEach((to,from)=>{
-    console.log('router')
+// router.beforeEach((to,from,next)=>{
+//     const token = false
+//     if (!token) {
+//         if (to.name !== 'login') {
+//             next({path:'/login'})
+//         }
+//     }
+//     next()
     
-})
-router.afterEach((to,from)=>{})
+// })
+// router.afterEach((to,from)=>{})
 export default router;
