@@ -8,7 +8,7 @@ const userModule : Module<RootStateTypes,UserModuleTypes> = {
     userName:'',
     psd:'',
     count: 0,
-    token:''
+    token:'123'
   },
   mutations: {
     SET_USERNAME: (state, username) => {
