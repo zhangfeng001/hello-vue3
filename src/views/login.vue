@@ -1,48 +1,83 @@
 <template>
-    <div class="container">
-        <a-form layout="vertical" :form="form" @submit="handleSubmit">
-            <a-form-item>
-                <a-input placeholder="账号" v-model="user.name">
-                    <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
-                </a-input>
-            </a-form-item>
-            <a-form-item>
-                <a-input type="password" placeholder="密码" v-model="user.password">
-                    <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
-                </a-input>
-            </a-form-item>
-            <a-form-item>
-            <a-button type="primary" html-type="submit" @click="handleLogin()">
-                登录
-            </a-button>
-            </a-form-item>
-        </a-form>
-    </div>
+  <a-form
+    class="form"
+    layout="vertical"
+    :model="formState"
+    @finish="handleFinish"
+    @finishFailed="handleFinishFailed"
+  >
+    <a-form-item>
+      <a-input v-model:value="formState.userName" placeholder="Username">
+        <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+      </a-input>
+    </a-form-item>
+    <a-form-item>
+      <a-input v-model:value="formState.password" type="password" placeholder="Password">
+        <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+      </a-input>
+    </a-form-item>
+    <a-form-item>
+      <a-button
+        type="primary"
+        html-type="submit"
+        :disabled="formState.user === '' || formState.password === ''"
+      >
+        Log in
+      </a-button>
+    </a-form-item>
+  </a-form>
 </template>
 <script lang="ts">
-import { computed, reactive } from 'vue';
-import { useStore } from '../../src/store';
-export default {
-    setup(){
-        const user =reactive({
-            name:'',
-            password:''
-        })
-        const handleLogin = ()=>{
-            console.log(user)
+
+    import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+    import { reactive, computed } from 'vue';
+    import { useStore } from '../store' 
+    import { useRouter } from 'vue-router'
+    export default {
+        setup() {
+            const router = useRouter();
             const store = useStore();
-            console.log(store)
-        }
-        return {
-            user,
-            handleLogin
-        }
-    },
-}
+            const formState  = reactive({
+                userName: '',
+                password: '',
+            });
+            // 取缓存中用户名和密码
+            const lUserName = localStorage.getItem('userName');
+            const lPsd = localStorage.getItem('password');
+            console.log(lUserName)
+            console.log(lPsd)
+            // if( lUserName && lPsd ){
+                    
+            // }
+            const handleFinish = (values) => {
+                const token = 'abc123456'
+                store.commit('userModule/SET_TOKEN',{token})
+                // 用户名密码 存local
+                router.push({
+                    path:'/list2',
+                })
+            };
+            const handleFinishFailed = (errors) => {
+                console.log(errors);
+            };
+            return {
+                formState,
+                handleFinish,
+                handleFinishFailed,
+            };
+        },
+        onMounted(){
+
+        },
+        components: {
+            UserOutlined,
+            LockOutlined,
+        },
+    };
 </script>
-<style lang="">
-    .container{
-        width: 500px;
+<style >
+    .form{
+        width: 300px;
         margin: 0 auto;
     }
 </style>

@@ -18,6 +18,7 @@ const userModule : Module<RootStateTypes,UserModuleTypes> = {
       state.psd = psd
     },
     SET_TOKEN: (state, token) => {
+      console.log(token)
       state.token = token
     },
     SET_INCREASE(state) {

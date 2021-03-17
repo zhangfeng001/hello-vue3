@@ -19,7 +19,7 @@
   import { computed, reactive } from 'vue'
   import { useStore  } from '../../store'
   import HelloWorld from '../../components/HelloWorld.vue'
-import { useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router'
   export default {
     name: 'App',
     components: {
