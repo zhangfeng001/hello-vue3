@@ -5,14 +5,12 @@
                 分页：<a-switch checked-children="开" un-checked-children="关" v-model:checked="checked" />
             </div>
             <div style="margin-left:30px" v-show="!checked" >
-                不分页显示数量：<a-select v-model:value="valueSelect" style="width: 120px">
-                    <a-select-option v-for="items in listSelect" :key="items" :value="items">{{items}}</a-select-option>
-                </a-select>
+                不分页显示数量：<a-input style="width:100px" v-model:value="valueSelect"></a-input>
             </div>
         </div>
         <div>
             <div class="topP"></div>
-            <div v-for="item in tagList.list" :key="item.id" class="listBox" @click.self="handleToDetail(item.id)">
+            <div v-for="item in tagList.list" :key="item.id" class="listBox" >
                 <img :src="item.img" alt="">
                 <p>{{item.title}}</p>
                 <p><a-input v-model:value="item.input1" placeholder="Basic usage" /></p>
@@ -22,6 +20,7 @@
                         <a-select-option v-for="items in item.select" :key="items.id" :value="items">{{items}}</a-select-option>
                     </a-select>
                 </p>
+                <p @click.self="handleToDetail(item.id)">详情</p>
             </div>
             <div v-show="checked" class="bottomP"></div>
         </div>
@@ -49,7 +48,7 @@ export default {
         //不分页数量开关
         const noSelect = reactive({
             valueSelect:100,
-            listSelect:[100,200,300,400,500]
+            listSelect:[20,50,75,100,150,200,250,300,350,400,500]
         })
         tagList.list = todoList.slice(0,noSelect.valueSelect)
         
