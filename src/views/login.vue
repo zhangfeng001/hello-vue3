@@ -7,20 +7,39 @@
     @finishFailed="handleFinishFailed"
   >
     <a-form-item>
-      <a-input v-model:value="formState.userName" placeholder="Username">
+      <a-input v-model:value="formState.userName" placeholder="Username" allowClear='true'>
         <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
       </a-input>
     </a-form-item>
     <a-form-item>
-      <a-input v-model:value="formState.password" type="password" placeholder="Password">
+      <a-input v-model:value="formState.password" type="password" placeholder="Password" allowClear='true'>
         <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
       </a-input>
     </a-form-item>
     <a-form-item>
-      <a-button
+        <a-select
+            class="select"
+            v-model:value="formState.vueModel"
+            style="width: 300px"
+            @focus="focus"
+            ref="select"
+        >
+            <a-select-option value="/list2">vue2</a-select-option>
+            <a-select-option value="/list3">vue3</a-select-option>
+        </a-select>
+    </a-form-item>
+    <a-form-item>
+      <!-- <a-button
         type="primary"
         html-type="submit"
         :disabled="formState.user === '' || formState.password === ''"
+      >
+        Log in
+      </a-button> -->
+      <a-button
+        class='btn'
+        type="primary"
+        html-type="submit"
       >
         Log in
       </a-button>
@@ -30,9 +49,21 @@
 <script lang="ts">
 
     import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
-    import { reactive, computed } from 'vue';
+    import { notification } from 'ant-design-vue';
+    import { 
+        reactive, 
+        computed, 
+        ref,
+        watch,
+        onBeforeMount,
+        onMounted,
+        onBeforeUpdate,
+        onUpdated,
+        onBeforeUnmount,
+        onUnmounted } 
+    from 'vue';
     import { useStore } from '../store' 
-    import { useRouter } from 'vue-router'
+    import { useRouter,onBeforeRouteLeave, onBeforeRouteUpdate, } from 'vue-router'
     export default {
         setup() {
             const router = useRouter();
@@ -40,21 +71,44 @@
             const formState  = reactive({
                 userName: '',
                 password: '',
+                token:'abc123456',
+                vueModel:'/list3',
             });
-            // 取缓存中用户名和密码
-            const lUserName = localStorage.getItem('userName');
-            const lPsd = localStorage.getItem('password');
-            console.log(lUserName)
-            console.log(lPsd)
-            // if( lUserName && lPsd ){
-                    
-            // }
+            const localUserName = localStorage.getItem('userName');
+            const localUserPsd = localStorage.getItem('userpsd');
+            if( localUserName && localUserPsd ){
+                formState.userName = localUserName
+                formState.password = localUserPsd
+            }
+            // 监听模式切换
+            watch( ()=> formState.vueModel, (value)=>{
+                formState.vueModel = value
+            })
+            const openNotification = () => {
+                notification.open({
+                    message: '提示',
+                    description:'请先完善信息~',
+                    onClick: () => {
+                        console.log('Notification Clicked!');
+                    },
+                });
+            } 
+            // 提交
             const handleFinish = (values) => {
-                const token = 'abc123456'
-                store.commit('userModule/SET_TOKEN',{token})
+                if( formState.userName.trim() == '' || formState.password.trim() == '' ) {
+                    openNotification();
+                    return
+                }
+                if( !localUserName && !localUserPsd ){
+                    localStorage.setItem('userName',formState.userName)
+                    localStorage.setItem('userpsd',formState.password)
+                }
+                store.commit('userModule/SET_TOKEN',{token:formState.token})
+                store.commit('userModule/SET_USERNAME',{username:formState.userName})
+                store.commit('userModule/SET_PSD',{psd:formState.password})
                 // 用户名密码 存local
                 router.push({
-                    path:'/list2',
+                    path:formState.vueModel,
                 })
             };
             const handleFinishFailed = (errors) => {
@@ -64,11 +118,10 @@
                 formState,
                 handleFinish,
                 handleFinishFailed,
+                openNotification,
             };
         },
-        onMounted(){
-
-        },
+        
         components: {
             UserOutlined,
             LockOutlined,
@@ -78,6 +131,12 @@
 <style >
     .form{
         width: 300px;
-        margin: 0 auto;
+        margin: 100px auto;
+    }
+    .ant-select{
+        width: 300px;
+    }
+    .btn{
+        width: 300px;
     }
 </style>
