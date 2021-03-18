@@ -11,7 +11,22 @@
         <div>
             <div class="topP"></div>
             <div v-for="item in tagList.list" :key="item.id" class="listBox" >
-                <img :src="item.img" alt="">
+                <a-upload
+                    v-model:file-list="fileList"
+                    name="avatar"
+                    accept='image/*'
+                    list-type="picture-card"
+                    class="avatar-uploader"
+                    :show-upload-list="false"
+                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                >
+                    <img v-if="item.img" :src="item.img" alt="avatar" />
+                    <div v-else>
+                    <loading-outlined v-if="loading"></loading-outlined>
+                    <plus-outlined v-else></plus-outlined>
+                    <div class="ant-upload-text">上传</div>
+                    </div>
+                </a-upload>
                 <p>{{item.title}}</p>
                 <p><a-input v-model:value="item.input1" placeholder="Basic usage" /></p>
                 <p><input type="text" v-model="item.input2" placeholder="Basic usage" /></p>
@@ -40,11 +55,14 @@ export default {
         const tagList =  reactive({
             List:[]
         })
-
+        //  图片上传
+         const fileList = ref([]);
+        const loading = ref<boolean>(false);
         // 开关
         const state = reactive({
             checked:false
         })
+
         //不分页数量开关
         const noSelect = reactive({
             valueSelect:100,
@@ -107,13 +125,26 @@ export default {
             total,
             onChange,
             showSizeChange,
-            handleToDetail
+            handleToDetail,
+            fileList,
+            loading
         }
     }
 }
 </script>
 
 <style scoped>
+.ant-upload-picture-card-wrapper{
+    width: auto;
+}
+::v-deep .avatar-uploader > .ant-upload {
+  width: 60px;
+  height: 60px;
+}
+::v-deep .avatar-uploader > .ant-upload img {
+  width: 60px;
+  height: 60px;
+}
 .listBox{
     width: 100%;
     height: 100px;
@@ -122,9 +153,6 @@ export default {
     align-items: center;
     margin: 10px 0 10px 0;
     border: 1px solid #ccc;
-}
-.listBox img {
-    height: 100%;
 }
 .topPageination{
     display: flex;
