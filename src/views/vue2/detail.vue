@@ -4,26 +4,12 @@
     <div>{{isDetail[0].content}}</div>
 </template>
 <script>
+// 数据库数据
+import todoList from "../../assets/list.json"
 export default {
     data () {
         return {
-            detailList:[
-            {
-                id:1,
-                title:'option APIdog',
-                content:'dogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogdogv',
-                img:'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2980445260,41238050&fm=26&gp=0.jpg'
-            },{
-                id:2,
-                title:'option APIcat',
-                content:'catcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatcatv',
-                img:'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1196368842,2473465511&fm=11&gp=0.jpg'
-            },{
-                id:3,
-                title:'option APIpig',
-                content:'pigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigpigv',
-                img:'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2022157757,2962275850&fm=26&gp=0.jpg'
-            }],
+            detailList:[],
             id:null,
         }
     },
@@ -34,6 +20,7 @@ export default {
     },
     created(){
         this.id = this.$route.query.id
+        this.detailList = todoList
     }
 }
 </script>
