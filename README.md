@@ -7,6 +7,11 @@
 - https： https://github.com/zhangfeng001/hello-vue3.git
 - ssh：   git@github.com:zhangfeng001/hello-vue3.git
 
+# 分支说明
+- master 主干
+- develop为开发分支
+- 暂无其他分支
+  
 # vue3.0 与 vue2.0比较
 > vue3.0速度较vue2.0快上1.5倍至2倍，diff算法做了优化修改。
 
@@ -23,7 +28,7 @@
 2. 列表页
 3. 详情页 
 
-# 遇到表单
+# 问题表单
 序号|问题描述|解决方案
 --|:--:|--:
 1|生命周期引入错误|生命周期放在setup,并且需要引入才能使用
