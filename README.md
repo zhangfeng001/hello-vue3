@@ -24,17 +24,12 @@
 # 遇到表单
 序号|问题描述|解决方案
 --|:--:|--:
-刘备|哭|大哥
-关羽|打|二哥
-张飞|骂|三弟
-
-#问题汇总
-> 1、生命周期放在setup,并且需要引入才能使用
-> 2、vuex4.0  createStore新用法
-> 3、store在router中使用报错
+1|生命周期引入错误|生命周期放在setup,并且需要引入才能使用
+2|vuex4.0引入报错|需要使用新语法createStore、useStore
+3|新语法useStore在router.js中引入时报错|需要这样引入import { useStore } from '../store'
+4|公司无法连接github|解决方案地址 https://zhuanlan.zhihu.com/p/138571208
 
 # Project setup
-
 ``` 
 "dev": "vite",
 "build": "vite build"
