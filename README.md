@@ -1,7 +1,9 @@
-# vue3   技术栈 
+# 项目组 - B
+
+# vue3 技术栈 
 基于 vue3.0 + vite + antd2.0 + ts4.0 + vuex等技术搭建
 
-# 项目地址
+# 项目地址 - B
 - https： https://github.com/zhangfeng001/hello-vue3.git
 - ssh：   git@github.com:zhangfeng001/hello-vue3.git
 
@@ -27,7 +29,7 @@
 1|生命周期引入错误|生命周期放在setup,并且需要引入才能使用
 2|vuex4.0引入报错|需要使用新语法createStore、useStore
 3|新语法useStore在router.js中引入时报错|需要这样引入import { useStore } from '../store'
-4|公司无法连接github|解决方案地址 https://zhuanlan.zhihu.com/p/138571208
+4|公司无法连接github|解决方案地址 https://blog.csdn.net/secular_/article/details/108472861
 
 # Project setup
 ``` 
