@@ -50,20 +50,9 @@
 
     import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
     import { notification } from 'ant-design-vue';
-    import { 
-        reactive, 
-        computed, 
-        ref,
-        watch,
-        onBeforeMount,
-        onMounted,
-        onBeforeUpdate,
-        onUpdated,
-        onBeforeUnmount,
-        onUnmounted } 
-    from 'vue';
+    import { reactive, watch } from 'vue';
     import { useStore } from '../store' 
-    import { useRouter,onBeforeRouteLeave, onBeforeRouteUpdate, } from 'vue-router'
+    import { useRouter } from 'vue-router'
     export default {
         setup() {
             const router = useRouter();
@@ -74,6 +63,7 @@
                 token:'abc123456',
                 vueModel:'/list3',
             });
+            // 取缓存中的用户名和密码
             const localUserName = localStorage.getItem('userName');
             const localUserPsd = localStorage.getItem('userpsd');
             if( localUserName && localUserPsd ){
@@ -84,6 +74,8 @@
             watch( ()=> formState.vueModel, (value)=>{
                 formState.vueModel = value
             })
+
+            // 信息不完善提醒
             const openNotification = () => {
                 notification.open({
                     message: '提示',
@@ -93,7 +85,7 @@
                     },
                 });
             } 
-            // 提交
+            // 提登录交
             const handleFinish = (values) => {
                 if( formState.userName.trim() == '' || formState.password.trim() == '' ) {
                     openNotification();
@@ -103,7 +95,7 @@
                     localStorage.setItem('userName',formState.userName)
                     localStorage.setItem('userpsd',formState.password)
                 }
-                // store
+                // 存 store
                 store.commit('userModule/SET_TOKEN',{token:formState.token})
                 store.commit('userModule/SET_USERNAME',{username:formState.userName})
                 store.commit('userModule/SET_PSD',{psd:formState.password})
