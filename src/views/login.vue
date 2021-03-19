@@ -103,6 +103,7 @@
                     localStorage.setItem('userName',formState.userName)
                     localStorage.setItem('userpsd',formState.password)
                 }
+                // store
                 store.commit('userModule/SET_TOKEN',{token:formState.token})
                 store.commit('userModule/SET_USERNAME',{username:formState.userName})
                 store.commit('userModule/SET_PSD',{psd:formState.password})

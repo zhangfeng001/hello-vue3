@@ -3,7 +3,6 @@
     <a-button type="primary"  style="margin-right:10px" @click="handleToTag(2)">去Options Api</a-button>
     <a-button type="primary" @click="handleToTag(3)">去Composition Api</a-button>
     <HelloWorld msg="Hello Vue 3.0 + Vite(组件传递props)" />
-    <beforeUpdate />
     <div>
       <h1>爱好数量： {{todos.length}}</h1>
       <div v-for="item in todos" :key="item.id">
@@ -20,13 +19,11 @@
   import { computed, reactive } from 'vue'
   import { useStore  } from '../../store'
   import HelloWorld from '../../components/HelloWorld.vue'
-  import beforeUpdate from '../../components/beforeUpdate.vue'
   import { useRouter } from 'vue-router'
   export default {
     name: 'App',
     components: {
-      HelloWorld,
-      beforeUpdate
+      HelloWorld
     },
     // 相当于vue2 的beforeCreate 和 created  是vue3新增的一个属性 所有的操作都在此属性中完成
     setup(){

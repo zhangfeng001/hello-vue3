@@ -45,8 +45,18 @@
     </div>
 </template>
 <script lang="ts">
-import { reactive,ref,toRefs,watch } from 'vue'
-import { useRouter } from 'vue-router';
+import { 
+        reactive,
+        ref,
+        toRefs,
+        watch ,
+        onBeforeMount,
+        onMounted,
+        onBeforeUpdate,
+        onUpdated,
+        onBeforeUnmount,
+        onUnmounted} from 'vue'
+import { useRouter,onBeforeRouteLeave, onBeforeRouteUpdate, } from 'vue-router';
 // 数据库数据
 import todoList from "../../assets/list.json"
 export default {
@@ -116,6 +126,30 @@ export default {
                 },
             })
         }
+        onBeforeMount(() => {
+            console.log('onBeforeMount')
+        })
+        onMounted(() => {
+            console.log('onMounted')
+        })
+        onBeforeUpdate(() => {
+            console.log('onBeforeUpdate')
+        })
+        onUpdated(() => {
+            console.log('onUpdated')
+        })
+        onBeforeUnmount(() => {
+            console.log('onBeforeUnmount')
+        })
+        onUnmounted(() => {
+            console.log('onUnmounted')
+        })
+        onBeforeRouteUpdate((to,from)=>{//当前组件路由改变后，进行触发
+            console.log(to);
+        })
+        onBeforeRouteLeave((to,from)=>{//离开当前的组件，触发
+            alert('我离开啦')
+        })
         return {
             tagList,
             ...toRefs(state),
