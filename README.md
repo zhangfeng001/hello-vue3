@@ -32,9 +32,11 @@
 序号|问题描述|解决方案
 --|:--:|--:
 1|生命周期引入错误|生命周期放在setup,并且需要引入才能使用
-2|vuex4.0引入报错|需要使用新语法createStore、useStore
+2|vuex4.0引入报错|需要使用新语法getCurrentInstance
 3|新语法useStore在router.js中引入时报错|需要这样引入import { useStore } from '../store'
-4|公司无法连接github|解决方案地址 https://blog.csdn.net/secular_/article/details/108472861
+4|reactive声明的基本数据类型 当数据改变后不会响应式更新|推荐声明复杂数据类型用reactive，简单数据类型用ref可以响应式更新 (ref本质也是reactive) 
+5|reactive 修改值不会响应式更新| 如const ruleForm = reactive({ username: ""}) 需要ruleForm.username='123'才会响应式更新，ruleForm={}页面不会响应式更新 且reactive声明的变量会递归监听
+6|公司无法连接github|解决方案地址 https://blog.csdn.net/secular_/article/details/108472861
 
 # Project setup
 ``` 
