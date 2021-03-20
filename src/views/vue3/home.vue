@@ -42,11 +42,15 @@
           id:3,
           hobby:true,
           text:'打豆豆'
-        }]
+        }],
+        list:[1,2,3,4]
       });
       // 使用计算属性
       const todos = computed(()=>{
-        return listState.todoList.filter(item => item.hobby)
+        console.log('123')
+        // return listState.todoList.filter(item => item.hobby)
+        console.log(listState.list.filter( (it) => it < 2 ))
+        return  listState.list.filter( (it) => it < 2 )
       })
       const router = useRouter()
       function handleToTag (tag) {
@@ -70,7 +74,7 @@
         count,
         handleInCount,
         handleReCount,
-        handleToTag
+        handleToTag,
       }
     }
   }
