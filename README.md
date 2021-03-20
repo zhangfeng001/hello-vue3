@@ -8,7 +8,7 @@
 - ssh：   git@github.com:zhangfeng001/hello-vue3.git
 
 # 分支说明
-- master 主干
+- main 主干
 - develop为开发分支
 - 暂无其他分支
   
