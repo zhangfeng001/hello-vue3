@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# hello-vue3
-=======
 # 项目组 - B
 
 # vue3 技术栈 
@@ -11,7 +8,7 @@
 - ssh：   git@github.com:zhangfeng001/hello-vue3.git
 
 # 分支说明
-- master 主干
+- main 主干
 - develop为开发分支
 - 暂无其他分支
   
@@ -48,4 +45,3 @@
 ```
 ### 定制配置
 See [Configuration Reference](https://cli.vuejs.org/config/).
->>>>>>> develop
