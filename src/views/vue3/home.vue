@@ -1,7 +1,8 @@
 <template>
   <div>
-    <a-button type="primary"  style="margin-right:10px" @click="handleToTag(2)">去Options Api</a-button>
-    <a-button type="primary" @click="handleToTag(3)">去Composition Api</a-button>
+    <a-button type="primary" @click="handleToTag(2)">去2</a-button>
+    <a-button type="primary" @click="handleToTag(3)">去3</a-button>
+    <a-button type="primary" @click="handleCompsition()">去组合api</a-button>
     <HelloWorld msg="Hello Vue 3.0 + Vite(组件传递props)" />
     <div>
       <h1>爱好数量： {{todos.length}}</h1>
@@ -69,12 +70,20 @@
       const handleReCount = () => {
         store.commit('userModule/SET_REDUCE')
       }
+
+      // 去组合api
+      function handleCompsition() {
+        router.push({
+          path:'/compsitionApi'
+        })
+      }
       return {
         todos,
         count,
         handleInCount,
         handleReCount,
         handleToTag,
+        handleCompsition
       }
     }
   }

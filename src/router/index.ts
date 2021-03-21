@@ -34,6 +34,11 @@ const router = createRouter({
       name: "detail2",
       component: () => import("../views/vue2/detail.vue"),
     },
+    {
+      path:'/compsitionApi',
+      name: "/compsitionApi",
+      component: () => import("../views/vue3/compsitionApi.vue"),
+    }
   ],
 });
 router.beforeEach((to, from, next) => {
