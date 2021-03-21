@@ -16,6 +16,8 @@
 </template>
 
 <script lang="ts">
+import useAddModule from '../../assets/ts/add'
+import useRemoveModule from '../../assets/ts/remove'
 import { defineComponent, reactive } from 'vue'
 
 export default defineComponent({
@@ -26,36 +28,4 @@ export default defineComponent({
     },
 })
 
-// 独立的模块 删除逻辑
-function useRemoveModule(){
-        let state = reactive({
-            student:[
-                {id:1,name:'zs',age:10},
-                {id:2,name:'ls',age:20},
-                {id:3,name:'ww',age:30},
-            ]
-        })
-        //删除逻辑
-        function remove(index){
-            state.student = state.student.filter( (it,idx) => index !== idx)
-        }
-        return {state,remove}
-}
-
-// 独立模块 增加逻辑
-function useAddModule(state){
-    let state2 = reactive({
-            stu:{
-                id:'',
-                name:'',
-                age:''
-            }
-        })
-        function addStu(e){
-            e.preventDefault();
-            const stu = Object.assign({},state2.stu)
-            state.student.push(stu)
-        }
-        return {state2,addStu}
-}
 </script>
