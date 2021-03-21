@@ -21,6 +21,10 @@
 # 项目组 B
 ### vue3 技术栈 
 基于 vue3.0 + vite + antd2.0 + ts4.0 + vuex等技术搭建
+# 安装脚手架
+- npm install -g create-vite-app
+- create-vite-app projectName
+  
 ### 项目地址
 - https： https://github.com/zhangfeng001/hello-vue3.git
 - ssh：   git@github.com:zhangfeng001/hello-vue3.git

@@ -7,13 +7,11 @@
     @finishFailed="handleFinishFailed"
   >
     <a-form-item>
-      <a-input v-model:value="formState.userName" placeholder="Username" allowClear='true'>
-        <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+      <a-input v-model:value="formState.userName" placeholder="Username" >
       </a-input>
     </a-form-item>
     <a-form-item>
-      <a-input v-model:value="formState.password" type="password" placeholder="Password" allowClear='true'>
-        <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+      <a-input v-model:value="formState.password" type="password" placeholder="Password" >
       </a-input>
     </a-form-item>
     <a-form-item>
@@ -48,8 +46,6 @@
 </template>
 <script lang="ts">
 
-    import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
-    import { notification } from 'ant-design-vue';
     import { reactive, watch } from 'vue';
     import { useStore } from '../store' 
     import { useRouter } from 'vue-router'
@@ -77,13 +73,14 @@
 
             // 信息不完善提醒
             const openNotification = () => {
-                notification.open({
-                    message: '提示',
-                    description:'请先完善信息~',
-                    onClick: () => {
-                        console.log('Notification Clicked!');
-                    },
-                });
+                // notification.open({
+                //     message: '提示',
+                //     description:'请先完善信息~',
+                //     onClick: () => {
+                //         console.log('Notification Clicked!');
+                //     },
+                // });
+                alert('请完善信息')
             } 
             // 提登录交
             const handleFinish = (values) => {
@@ -116,8 +113,8 @@
         },
         
         components: {
-            UserOutlined,
-            LockOutlined,
+            // UserOutlined,
+            // LockOutlined,
         },
     };
 </script>
