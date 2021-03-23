@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { store , key } from './store'
 import router from "./router";
 import App from './App.vue'
-import './index.css'
+import './index.css' // 引入全局样式
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
 

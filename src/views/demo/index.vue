@@ -5,7 +5,7 @@
  * @Description: 
 -->
 <template>
-<div>我是父组件--我的两个组件共同使用</div>
+<div class="farther">我是父组件--<span class="farther_span">我的两个组件共同使用</span></div>
 <div>{{state.student}}</div>
 <br/>
 <br/>
@@ -37,6 +37,19 @@ export default {
 }
 </script>
 
-<style>
+<style lang='scss' scoped>
+$redbg:pink;
+.farther{
+  color:$redbg;
+  height: (10+10) *2px;
+  &_span{
+    font-size: 22px;
+    color: $red
+  }
 
+  font: {
+      size: 20px;
+      weight: bold
+  }
+}
 </style>

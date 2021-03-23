@@ -2,7 +2,7 @@
  * @Author: lzy
  * @Date: 2021-03-21 9:36:13
  * @Title: 
- * @Description: 
+ * @Description: 此页面配置完成一定要重启
  */
 const path = require('path')
 // vite.config.js # or vite.config.ts
@@ -12,7 +12,7 @@ module.exports = {
     // 键必须以斜线开始和结束
     '/@/': path.resolve(__dirname, './src')
   },
-  hostname: '0.0.0.0',
+  // hostname: 'capgemini',
   port: 8080,
   // 是否自动在浏览器打开
   open: true,
@@ -30,6 +30,12 @@ module.exports = {
    * @default 'dist'
    */
   outDir: 'dist',
+  //配置全局样式变量
+  cssPreprocessOptions: {
+    scss: {
+      additionalData: '@import "./src/assets/scss/style.scss";' // 添加公共样式
+    }
+  }
   // 反向代理
   // proxy: {
   //   '/api': {
