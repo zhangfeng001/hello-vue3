@@ -38,6 +38,11 @@ const router = createRouter({
       path:'/compsitionApi',
       name: "/compsitionApi",
       component: () => import("../views/vue3/compsitionApi.vue"),
+    },
+    {
+      path:'/demo',
+      name: "demo",
+      component: () => import("../views/demo/index.vue"),
     }
   ],
 });
