@@ -16,20 +16,22 @@ module.exports = {
   port: 8080,
   // 是否自动在浏览器打开
   open: true,
+  // 开启控制台输出日志
+  silent: false,
   // 是否开启 https
   https: false,
   // 服务端渲染
   ssr: false,
-  /**
-   * 在生产中服务时的基本公共路径。
-   * @default '/'
-   */
+  // 打包后的根路径
   base: './',
-  /**
-   * 与“根”相关的目录，构建输出将放在其中。如果目录存在，它将在构建之前被删除。
-   * @default 'dist'
-   */
+  // 入口
+  entry: 'index.html',
+  // 出口
   outDir: 'dist',
+  // 输出的静态资源的文件夹名称
+  assetsDir:'assets',
+  // 哪个第三方的包需要重新编译
+  optimizeDeps:[],
   //配置全局样式变量
   cssPreprocessOptions: {
     scss: {

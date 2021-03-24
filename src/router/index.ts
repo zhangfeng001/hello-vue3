@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { store } from "../store";
+import todoList from "../assets/list.json";
 //  createRouter 创建路由
 const router = createRouter({
   history: createWebHashHistory(),
@@ -18,6 +19,11 @@ const router = createRouter({
       path: "/list3",
       name: "list3",
       component: () => import("../views/vue3/list.vue"),
+      beforeEnter: ()=>{
+        if (store.state.list.length == 0) {
+          store.commit('SET_LIST',todoList)
+        }
+      }
     },
     {
       path: "/detail3",
@@ -28,6 +34,11 @@ const router = createRouter({
       path: "/list2",
       name: "list2",
       component: () => import("../views/vue2/list.vue"),
+      beforeEnter: ()=>{
+        if (store.state.list.length == 0) {
+          store.commit('SET_LIST',todoList)
+        }
+      }
     },
     {
       path: "/detail2",

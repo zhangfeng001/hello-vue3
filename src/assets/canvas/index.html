@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 参考 canvas笔记 => https://www.jianshu.com/p/f2e92bba4653 -->
+    <!-- canvas坐标系，默认位置从最左上角0,0开始。x向右增大， y向下增大。ctx.translate(150, 150)可以改变默认位置 -->
+    <canvas id="canvas" style="float: right;" width="300" height="300"></canvas>
+    <script>
+        window.onload = ()=> {
+            //获得画布
+            var canvas = document.getElementById("canvas");
+            if (canvas.getContext) { // 兼容判断
+                //拿到笔，注意：2d小写， 3d：webgl
+                var ctx = canvas.getContext("2d");
+                //设置笔的颜色
+                ctx.strokeStyle='red'
+                // 用笔画出来的矢量图内部填充颜色
+                ctx.fillStyle="blue"; //"red","#ccc","rgb(255,0,0)","rgba(255,0,0,6)"都可以 
+                // 设置笔的粗细
+                ctx.lineWidth = '4'
+
+                //开始绘制
+
+                        /////////////// 1.绘制矩形
+                        // // 不可以填充颜色的矩形 从x=10 y=10 开始  画一个 宽50 高50的矩形
+                        // ctx.strokeRect(10,10,50,50);
+                        // 可以填充颜色
+                        // ctx.fillRect (20, 20, 55, 55); 
+                        // // 清楚矩形里的内容
+                        // ctx.clearRect (10, 10, 60, 60);
+
+                        /////////////// 2.绘制线段 并且连接成一个三角形
+                        //开始绘制路径
+                        // ctx.beginPath();
+                        // 设置绘制起点
+                        // ctx.moveTo(10,10);
+                        //绘制一条线，从绘制起点的位置到100,200，此时他就是下条线的起点
+                        // ctx.lineTo(100,200);
+                        //绘制一条线，从100,200到150,150
+                        // ctx.lineTo(150,150);
+                        //闭合路径,此时会自动绘制一条线，连接起点和终点
+                        // ctx.closePath();
+                        // * 语法：ctx.stroke();
+                        // * 解释：根据路径绘制线。路径只是抽象，真正绘制线必须执行stroke
+                        // ctx.stroke();
+                        // * 语法：ctx.fill(); 
+                        // * 解释：填充，是将闭合的路径的内容填充具体的颜色。默认黑色。
+                        // ctx.fill();
+
+                        /////////////// 3.绘制圆弧
+                        // 参数依次为 
+                        // 圆心x坐标 
+                        // 圆心y坐标 
+                        // 园的半径 
+                        // 起始角，以弧度计。（弧的圆形的三点钟位置是 0 度）。 
+                        // 结束角，以弧度计。 
+                        // 是否逆时针
+                        // ctx.arc(150,150,40,0*Math.PI,2*Math.PI,false);
+                        // ctx.stroke();
+
+                        //////////////// 4.贝塞尔曲线
+                        // var cpx = 300, cpy = 100, x = 0, y = 0;
+                        // ctx.beginPath();
+                        // 设置起点
+                        // ctx.moveTo(150,150);
+                        // 二次贝塞尔 就是有一个上帝之手
+                        // cpx,cpy控制的点就像上帝之手 拽这个线，让其成为一条弯曲的线
+                        // x，y 就是终点的横纵坐标，他也是下一个贝塞尔的起点
+                        // ctx.quadraticCurveTo(cpx,cpy,x,y);
+                        // 三次贝塞尔 就是有两个上帝之手
+                        // cpx2,cpy2是第一个上帝之手的xy坐标
+                        // cpx3,cpy3是第二个上帝之手的xy坐标
+                        // x2，y2 就是终点的横纵坐标，他也是下一个贝塞尔的起点
+                        // var cpx2 = 0, cpy2 = 100,cpx3 = 100, cpy3 = 0, x2 = 150, y2 = 150;
+                        // ctx.bezierCurveTo(cpx2,cpy2,cpx3,cpy3,x2,y2);
+                        // ctx.closePath();
+                        // ctx.stroke();
+
+                        //////////////// 5.图案填充
+                        // var imgObj=new Image();
+                        // imgObj.src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2026506810,1548839222&fm=26&gp=0.jpg";
+                        // imgObj.onload=function(){
+                        //     //贴一张照片 参数依次为图片对象，图片左上角的x，y，图片的宽，高
+                        //     ctx.drawImage(imgObj,0,0,200,200);
+                        //     // 贴一张照片并且填充 参数依次为图片对象，裁剪原图上的位置x,y(左上角)，裁剪的宽高。然后放在幕布上的位置（左上角），放的宽，高
+                        //     ctx.drawImage(imgObj,200,200,80,80,0,0,80,80);
+                        // }
+
+                        //////////////// 6.设置阴影
+                        //单独设置下颜色
+                        // ctx.fillStyle = "rgba(255,0,0, .9)" 
+                        // 设置阴影颜色
+                        // ctx.shadowColor = "teal";
+                        // 设置模糊级别，大于1且越高越模糊
+                        // ctx.shadowBlur = 10;
+                        // 阴影水平距离
+                        // ctx.shadowOffsetX = -10;
+                        // 阴影垂直距离
+                        // ctx.shadowOffsetY = 10;
+                        // ctx.fillRect(100, 100, 100, 100);
+                
+                        //////////////// 7.设置渐变
+                        //创建线性渐变的对象 参数：线性渐变的开始位置 x，y 渐变的结束位置x，y
+                        // var grd=ctx.createLinearGradient(0,0,0,100);
+                        // grd.addColorStop(0,"#FF0000");  //添加一个渐变颜色，0.0 与 1.0 之间，0位置是红。
+                        // grd.addColorStop(0.1,"#FF7F00");  //添加一个渐变颜色，0.0 与 1.0 之间，0.1位置是橙。
+                        // grd.addColorStop(0.2,"#FFFF00");  //添加一个渐变颜色，0.0 与 1.0 之间，0.2位置是黄。
+                        // grd.addColorStop(0.4,"#00FF00");  //添加一个渐变颜色，0.0 与 1.0 之间，0.4位置是绿。
+                        // grd.addColorStop(0.6,"#00FFFF");  //添加一个渐变颜色，0.0 与 1.0 之间，0.6位置是青。
+                        // grd.addColorStop(0.8,"#0000FF");  //添加一个渐变颜色，0.0 与 1.0 之间，0.8位置是蓝。
+                        // grd.addColorStop(1,"#8B00FF");  //添加一个渐变颜色，0.0 与 1.0 之间，1位置是紫。
+                        // ctx.fillStyle =grd; //关键点，把渐变设置到 填充的样式
+                        // ctx.rect(0,0,800,800);//绘制宽800高800的矩形。
+                        // ctx.fill(); // 填充
+                        // 还有径向渐变createRadialGradient()不再赘述
+
+                        /////////////// 8.坐标轴转化
+                        // ctx.translate(150, 150); //改变canvas坐标系，默认是左上角，现在把x=0,y=0设置在150，150点上
+                        // ctx.fillStyle ='red';
+                        // ctx.rect(0,0,100,100);//从x=0，y=0开始，绘制宽100高100的矩形。
+                        // ctx.fill();
+                
+                        //////////////// 9.字体
+                        //综合案例代码：
+                        // ctx.fillStyle = "purple";               //设置填充颜色为紫色
+                        // ctx.strokeStyle='green'
+                        // ctx.font = '40px "微软雅黑"';           //设置字体
+                        // ctx.textBaseline = "bottom";            //设置字体底线对齐绘制基线
+                        // ctx.textAlign = "left";                 //设置字体对齐的方式
+                        
+                        //画一个小圆确定位置
+                        // ctx.arc(100,100,10,0*Math.PI,2*Math.PI,false);
+                        // ctx.stroke();
+
+                        // ctx.strokeText( "Top-g", 100, 100 );    //写描边文字
+                        // ctx.fillText( "Top-g", 100, 100 );        //写填充文字
+
+                
+            }   
+        }
+    </script>
+    <!-- <script type="text/javascript">
+        // 案例：// arc()画一个动态的圆球
+		var mycanvas = document.querySelector("canvas");
+		var ctx = mycanvas.getContext("2d");
+ 		var x = 100;
+ 		setInterval(function(){
+ 			x++;
+ 			//清屏
+ 			ctx.clearRect(0,0,300,300);
+ 			//重新绘制一个新圆形
+ 			ctx.beginPath();
+	 		ctx.arc(x,100,50,0,Math.PI * 2, true);
+	 		ctx.closePath();
+	 		ctx.fillStyle = "orange";
+	 		ctx.fill();
+ 		},20);
+    </script> -->
+    <!-- <script type="text/javascript">
+        // 案例：// arc()画一个笑脸
+        var mycanvas = document.querySelector("canvas");
+		var ctx = mycanvas.getContext("2d");
+        
+        ctx.beginPath()
+        ctx.fillStyle = "yellow";
+        ctx.arc(75,75,50,0,Math.PI*2,true); // 脸
+        ctx.fill()
+        ctx.stroke();
+
+        ctx.beginPath()
+        ctx.fillStyle = "yellow";
+        ctx.moveTo(110,75); 
+        ctx.arc(75,75,35,0,Math.PI,false); // 嘴巴
+        ctx.fill()
+        ctx.stroke();
+
+        ctx.beginPath()
+        ctx.moveTo(65,65); 
+        ctx.fillStyle = "black";
+        ctx.arc(60,65,5,0,Math.PI*2,true); // 眼睛
+        ctx.moveTo(95,65); 
+        ctx.arc(90,65,5,0,Math.PI*2,true); // 眼睛
+        ctx.fill()
+        ctx.stroke();
+        // 坑 ctx.fill()与ctx.stroke(); 描边与填充是从ctx.beginPath()开始
+    </script> -->
+    <!-- <script type="text/javascript">
+        // 案例：// 二次贝塞尔quadraticCurveTo()画一个耐克
+		var mycanvas = document.querySelector("canvas");
+		var ctx = mycanvas.getContext("2d");
+        var cpx = 0, cpy = 260, x = 300, y = 100;
+        ctx.fillStyle = "black"; //设置填充颜色为黑色
+        // 设置起点
+        ctx.moveTo(80,100);
+        // 二次贝塞尔 就是有一个上帝之手
+        // cpx,cpy控制的点就像上帝之手 拽这个线，让其成为一条弯曲的线
+        // x，y 就是终点的横纵坐标，他也是下一个贝塞尔的起点
+        ctx.quadraticCurveTo(cpx,cpy,x,y);
+        ctx.quadraticCurveTo(40,200,80,100);
+        ctx.fill();
+    </script> -->
+    <!-- <script type="text/javascript">
+        // 案例：// 三次贝塞尔bezierCurveTo()画一个心
+		var mycanvas = document.querySelector("canvas");
+		var ctx = mycanvas.getContext("2d");
+        ctx.moveTo(75,40);
+        ctx.bezierCurveTo(75,37,70,25,50,25);
+        ctx.bezierCurveTo(20,25,20,60,20,60);
+        ctx.bezierCurveTo(20,80,40,102,75,120);
+        ctx.bezierCurveTo(110,102,130,80,130,60);
+        ctx.bezierCurveTo(130,60,130,25,100,25);
+        ctx.bezierCurveTo(85,25,75,37,75,40);
+        ctx.fill();
+    </script> -->
+</body>
+</html>

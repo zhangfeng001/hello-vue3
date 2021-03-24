@@ -47,7 +47,6 @@
 </template>
 <script>
 // 数据库数据
-import todoList from "../../assets/list.json"
 export default {
     data(){
         return {
@@ -60,9 +59,8 @@ export default {
             listSelect:[100,200,300,400,500],
             spinning:false,
             fileList:[],
-            loading:false
-
-
+            loading:false,
+            todoList:[]
         }
     },
     watch:{
@@ -71,30 +69,30 @@ export default {
                 console.log('分页')
                 this.valueSelect = 100
 
-                this.total = todoList.length
-                this.detailList = todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
+                this.total = this.todoList.length
+                this.detailList = this.todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
                 scrollTo(0,0)
             }else {
                 console.log('不分页')
                 this.current = 1
                 this.pageSize = 10
 
-                this.detailList = todoList.slice(0,this.valueSelect)
+                this.detailList = this.todoList.slice(0,this.valueSelect)
                 scrollTo(0,0)
             }
         },
         valueSelect(news){
-            this.detailList = todoList.slice(0,news)
+            this.detailList = this.todoList.slice(0,news)
         }
     },
     methods:{
         onChange(){
-            this.detailList = todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
+            this.detailList = this.todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
             scrollTo(0,0)
         },
         showSizeChange(){
             this.current = 1
-            this.detailList = todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
+            this.detailList = this.todoList.slice((this.current-1)*this.pageSize,this.current*this.pageSize)
             scrollTo(0,0)
         },
         handleToDetail(id){
@@ -106,8 +104,9 @@ export default {
         console.log('beforeCreate')
     },
     created() {
-        console.log('created')
-        this.detailList = todoList.slice(0,this.valueSelect)
+        // 500 条数据存在了store
+        this.todoList = this.$store.state.list
+        this.detailList = this.todoList.slice(0,this.valueSelect)
         scrollTo(0,0)
     },
     beforeMount() {

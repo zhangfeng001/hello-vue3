@@ -77,11 +77,13 @@ import {
   onBeforeUnmount,
   onUnmounted,
 } from "vue";
+import { useStore  } from '../../store'
 import { useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from "vue-router";
-// 数据库数据
-import todoList from "../../assets/list.json";
 export default {
   setup() {
+    // 500条数据存store
+    const store = useStore()
+    const todoList = store.state.list
     //  页面渲染数据
     const tagList = reactive({
       List: [],

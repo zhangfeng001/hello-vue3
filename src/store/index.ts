@@ -6,10 +6,15 @@ import userModule from './modules/user/user'
 
 export const store = createStore<RootStateTypes>({
    state:{
-       test:''
+       test:'',
+       list:[],// 500 条数据存store
    },
    getters:{},
-   mutations:{},
+   mutations:{
+    SET_LIST: (state, list) => {
+        state.list = list
+    },
+   },
    actions:{},
    modules:{
     userModule
