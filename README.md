@@ -70,3 +70,7 @@
 
 ### 定制配置
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+# 测试gitreset版本-
+- 001
