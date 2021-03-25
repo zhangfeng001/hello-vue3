@@ -72,5 +72,8 @@
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
-# 测试gitreset版本-
+# 测试git reset版本回退-
 - 001
+
+# 测试git reset版本回退-
+- 002
