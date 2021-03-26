@@ -1,0 +1,58 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-26 10:09:36
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-26 10:27:14
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style type="text/css">
+#canvas{
+    border:1px solid #ccc;
+}   
+</style>
+</head>
+<body>
+ <canvas id="canvas" width='800' height='500'>你的浏览器不支持canvas，请跟换其他浏览器试一试</canvas>
+</body>
+<script type="text/javascript">
+window.onload=function(){
+    var canvas=document.getElementById('canvas'),
+        context=canvas.getContext('2d'),
+        iWidth = canvas.width,
+        iHeight = canvas.height,
+        length = 40,//表示矩形（这里画正方形）边长，或者圆半径
+        speed = -5;
+
+    context.fillStyle='red';
+    context.beginPath();
+    context.fillRect((iWidth-length), 0, length, length);//绘制矩形
+    context.arc((iWidth-length),(iHeight/2),length,0,2*Math.PI,true);//圆
+    context.closePath();
+    context.fill();
+
+    var startPoint = iWidth-length;
+    setInterval(function(){
+        startPoint+=speed;
+        if(startPoint<=(-1*length)){ // 动到左边 重新开始
+            startPoint=iWidth-length
+        }
+        run(context,iWidth,iHeight,length,startPoint);
+    }, 30);
+};
+
+function run(cxt,width,height,length,point){
+    cxt.clearRect(0,0,width,height); // 清空面板
+    cxt.beginPath();
+    cxt.fillRect(point, 0, length, length);
+    cxt.arc(point,(height/2),length,0,2*Math.PI,true);
+    cxt.closePath();
+    cxt.fill();
+}
+</script>
+</html>

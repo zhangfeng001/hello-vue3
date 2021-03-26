@@ -1,0 +1,85 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-26 10:27:51
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-26 10:46:58
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style type="text/css">
+#canvas{
+    border:1px solid #ccc;
+}   
+</style>
+</head>
+<body>
+ <canvas id="canvas" width='800' height='500'>你的浏览器不支持canvas，请跟换其他浏览器试一试</canvas>
+</body>
+<script type="text/javascript">
+window.onload=function(){
+    var canvas=document.getElementById('canvas'),
+        context=canvas.getContext('2d'),
+        iWidth = canvas.width,
+        iHeight = canvas.height,
+        length = 40//太阳半径
+
+    context.translate((iWidth/2)-20,(iHeight/2)-20);//原点移到画布中心
+    drawNotchange(context,length)   // 至此静态已经画完
+
+    //地球
+    context.beginPath();
+    context.fillStyle='blue';
+    context.arc((length*3),0,length/2,0,2*Math.PI,true); // 位置在地球的正右边且半径是一半
+    context.fill();
+    context.closePath();
+
+    var time = 0 
+    setInterval(function(){
+        run(context,iWidth,iHeight,length,time);
+        time+=1;
+    }, 30);
+    
+};
+
+function drawNotchange(ctx,length){
+
+    // 坑：fill()与stroke()在上下文中渲染beginPath()与closePath()之间
+    //太阳
+    ctx.beginPath();
+    ctx.fillStyle='red';
+    ctx.arc(0,0,length,0,2*Math.PI,true);
+    ctx.fill(); // 填充
+    ctx.closePath();
+
+    //轨道
+    ctx.beginPath();
+    ctx.strokeStyle="#ccc";
+    ctx.arc(0,0,length*3,0,2*Math.PI,true);
+    ctx.stroke(); //   渲染
+    ctx.closePath();
+}
+
+function run(ctx,iWidth,iHeight,length,time){
+    // ctx.clearRect(x,y,w,h);x，y是原点。w，h是宽高
+    // ctx.clearRect(0,0,iWidth,iHeight);中心点在中间所以要回到原来位置，这样清除不干净
+    ctx.clearRect(-iWidth/2-20,-iHeight/2-20,iWidth,iHeight);
+    drawNotchange(ctx,length); // 清除后太阳和轨道也要不停画
+    ctx.save();//保存不变的渲染
+
+    // 保存后 只对地球操作旋转
+    ctx.beginPath();
+    ctx.rotate(time*2*Math.PI/180);//旋转角度
+    ctx.fillStyle='blue';
+    ctx.arc((length*3),0,length/2,0,2*Math.PI,true);
+    ctx.fill();
+    ctx.closePath();
+    ctx.restore();//配合save使用，取出之前save的状态 
+    // 旋转前先保存状态ctx.save() 旋转后再ctx.restore()拿出，保证不在旋转的基础上再进行旋转
+}
+</script>
+</html>

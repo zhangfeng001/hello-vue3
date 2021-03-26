@@ -1,0 +1,126 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-26 10:49:18
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-26 14:37:49
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+// requestAnimationFrame 比起 setTimeout、setInterval的优势主要有两点：
+// 1、requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+// 2、在隐藏或不可见的元素中，requestAnimationFrame将不会进行重绘或回流，这当然就意味着更少的的cpu，gpu和内存使用量。
+// 3 该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行。
+window.requestAnimFrame = (function(){ // 来个优雅降级
+    return  window.requestAnimationFrame       || 
+            window.webkitRequestAnimationFrame || 
+            window.mozRequestAnimationFrame    || 
+            window.oRequestAnimationFrame      || 
+            window.msRequestAnimationFrame     || 
+            function(callback,element){
+                window.setTimeout(callback, 1000 / 60); // 为什么是1000/60,这是因为大多数屏幕渲染的时间间隔是每秒60帧。
+            };
+})();
+
+window.onload = function(){
+
+    var canvas = document.createElement( 'canvas' ),
+        context = canvas.getContext( '2d' ),
+        taiyang_R = 40,//太阳半径
+        diqiu_R = 20,//地球半径
+        circle_dq = 120,//地球绕太阳转轨道半径
+        yueliang_R = 10,//月亮半径
+        circle_yl = 40,//月亮绕地球转轨道半径
+        diqiu_zz = 100,//地球自转的角度的比值
+        time = 0;
+
+    canvas.width = 800;
+    canvas.height = 500;
+    document.body.appendChild( canvas );
+    context.translate((canvas.width/2),(canvas.height/2));
+    
+    animate();
+    function animate(){
+        requestAnimFrame( animate );
+        draw();
+    }
+
+    function draw(){
+        context.clearRect(-canvas.width/2,-canvas.height/2,canvas.width,canvas.height);
+
+        //太阳
+        context.beginPath();
+        context.fillStyle='red';
+        context.arc(0,0,taiyang_R,0,2*Math.PI,true);
+        context.fill();
+        context.closePath();
+
+        //地球轨道
+        context.beginPath();
+        context.strokeStyle="#ccc";
+        context.arc(0,0,circle_dq,0,2*Math.PI,true);
+        context.stroke();
+        context.closePath();
+
+
+        // 2--地球+月亮绕（不旋转） + 地球自转（旋转）
+        // 月亮轨道绕着
+        context.beginPath();
+        context.strokeStyle="#ccc";
+        context.arc(
+            circle_dq*Math.cos(time*2*Math.PI/360), //x=临 : 临 / 斜 =  cos(弧度) => 临 = 斜 * cos(弧度)
+            circle_dq*Math.sin(time*2*Math.PI/360), //y=对 : 对 / 斜 =  sin(弧度) => 对 = 斜 * sin(弧度)
+            circle_yl,
+            0,
+            2*Math.PI,
+            true);
+        context.stroke();
+        context.closePath();
+
+        // 月亮
+        context.beginPath();
+        context.fillStyle = 'yellow';
+        context.arc( 
+             circle_dq*Math.cos(time*2*Math.PI/360) + circle_yl*Math.cos(time*2*Math.PI/360) ,
+             circle_dq*Math.sin(time*2*Math.PI/360) + circle_yl*Math.sin(time*2*Math.PI/360) ,
+             yueliang_R,
+             0,
+             2*Math.PI,
+             true);
+        context.fill();
+        context.closePath();
+
+        // 自转的地球
+        context.translate(
+            Number(circle_dq*Math.cos(time*2*Math.PI/360)),
+            Number(circle_dq*Math.sin(time*2*Math.PI/360))
+            );
+        context.save();
+        context.beginPath();
+        context.rotate(time*2*Math.PI/diqiu_zz);//旋转角度
+        context.fillStyle='blue';
+        context.arc(0,0,diqiu_R,0,2*Math.PI,true);
+        context.fill();
+
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.strokeStyle = '#fff';
+        context.strokeText('地',0,0);
+        context.stroke();
+        context.closePath();
+        context.restore();
+        context.translate(-Number(circle_dq*Math.cos(time*2*Math.PI/360)),-Number(circle_dq*Math.sin(time*2*Math.PI/360)));
+        
+        time += 1;
+    }
+}
+</script>
+</html>

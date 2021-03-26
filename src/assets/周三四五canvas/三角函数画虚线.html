@@ -1,0 +1,54 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-25 14:27:49
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-26 10:09:02
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvas" style="float: right;" width="300" height="300"></canvas>
+    <script>
+        var context=document.getElementById("canvas").getContext("2d");
+        /**
+         * @name: 
+         * @msg: 
+         * @param context {Object} canvas对象
+         * @param cols {Array} 需要合并列的Index(序号)数组；从0开始计数，序号也包含。
+         * @param dashlength {Number} ：虚线的长度；
+         * @return {*}
+         */  
+        function drawDashedLine(context,x1,y1,x2,y2,dashlength){          
+            dashlength=dashlength===undefined?5:dashlength;
+
+            var deltaX=x2-x1; //一条直角边的长
+            var deltay=y2-y1; //另一条直角边的长
+
+            var numDashes=Math.floor(
+                Math.sqrt(deltaX*deltaX+deltay*deltay)/dashlength  //Math.sqrt返回一个数的平方根  dashlength虚线每个点的长度
+            )
+
+            var everydashLength_x = deltaX/numDashes  //确定X轴每条虚线点的起始点
+            var everydashLength_y = deltay/numDashes  //确定Y轴每条虚线点的起始点
+
+            for(var i=0;i<numDashes;i++){
+                context[i%2===0?'moveTo':"lineTo"]
+                (x1+everydashLength_x*i,y1+everydashLength_y*i)
+            }
+            context.stroke()
+
+        }
+        context.lineWidth=3
+        context.strokeStyle="blue"
+        drawDashedLine(context,20,20,context.canvas.width-20,20,10)
+    </script>
+</body>
+</html>
