@@ -1,3 +1,8 @@
+<!--
+ * @Author: yuanaohua
+ * @Date: 2021-03-26 20:44:02
+ * @FilePath: /demo-vue3/Users/yuanaohua/Desktop/vue3新的生命周期对比与api.md
+-->
 # vue3小结
 [TOC]
 ## 生命周期vue2.0与vue3.0的对比
@@ -35,6 +40,8 @@ export default {
 ```
 
 ### reactive
+>`reactive` 函数接收一个普通对象，返回一个响应式的数据对象。
+
 >`reactive` 方法是用来创建一个响应式的数据对象，该API也很好地解决了Vue2通过 `defineProperty`实现数据响应式的缺陷
 
 ```
@@ -52,8 +59,13 @@ export default {
 ```
 
 ### ref
->在介绍 `setup` 函数时，我们使用了 `ref` 函数包装了一个响应式的数据对象，这里表面上看上去跟 `reactive` 好像功能一模一样啊，确实差不多，因为 `ref` 就是通过 `reactive` 包装了一个对象 ，然后是将值传给该对象中的 `value` 属性，这也就解释了为什么每次访问时我们都需要加上 `.value`
+>reactive函数接收一个普通对象，返回一个响应式的数据对象。
 
+>reactive API的定义为为传入一个对象并返回一个基于原对象的响应式代理，即返回一个 Proxy，相当于 Vue2x版本中的 Vue.observer。
+
+>reactive API是基于 ES2015 Proxy实现对数据对象的响应式处理，即在 Vue3.0可以往对象中添加属性，并且这个属性也会具有响应式的效果。
+
+>在介绍 `setup` 函数时，我们使用了 `ref` 函数包装了一个响应式的数据对象，这里表面上看上去跟 `reactive` 好像功能一模一样啊，确实差不多，因为 `ref` 就是通过 `reactive` 包装了一个对象 ，然后是将值传给该对象中的 `value` 属性，这也就解释了为什么每次访问时我们都需要加上 `.value`
 ```
 <template>
     <div @click="change">{{ newObj }}</div>
@@ -73,6 +85,8 @@ export default {
 }
 </script>
 ```
+
+
 
 ### toRef
 >`toRef` 是将某个对象中的某个值转化为响应式数据，其接收两个参数，第一个参数为 `obj` 对象；第二个参数为对象中的属性名
