@@ -4,6 +4,9 @@
   </div>
 </template>
 <script>
+/**
+ * 支持blob格式上传和base64格式上传
+ * */ 
  import {compressImage} from '../../assets/ts/CompressImageUtiles.js'
 export default {
   name: "compress",
@@ -17,35 +20,27 @@ export default {
   methods: {
     updateFile(){
       const fileObj = document.querySelector("#input-img").files[0];
-        let reader = new FileReader();
-        let that = this;
-        // 获取文件名称，后续下载重命名
-        let fileName = `${new Date().getTime()}-${fileObj.name}`;
-      // 压缩图片
-        reader.readAsDataURL(fileObj);
-        console.log(fileObj.size)
-        reader.onload = function (e) {
-          that._compressAndUploadFile(e.currentTarget.result,fileObj.size,fileName);
-        }
+      this._compressAndUploadFile(fileObj);
+
       },
-      _compressAndUploadFile(file,oSize,fileName){
+      _compressAndUploadFile(file){
         let that = this;
         compressImage(file).then(resultObj => {
-          console.log(resultObj)
-          console.log('压缩后的结果', resultObj.blob); // result即为压缩后的结果
+          let {blob,base64,fileName,oSize} = resultObj
+          console.log('压缩后的结果', blob); // result即为压缩后的结果
           console.log('压缩前大小', oSize/1024);
-          console.log('压缩后大小', resultObj.blob.size/1024);
-          if (resultObj.blob.size > oSize){
+          console.log('压缩后大小', blob.size/1024);
+          if (blob.size > oSize){
             console.log('上传原图');
             //压缩后比原来更大，则将原图上传
             that._uploadFile(file, fileName);
           } else {
             //压缩后比原来小，上传压缩后的
             console.log('上传压缩图');
-            that._uploadFile(resultObj.blob, fileName)
+            that._uploadFile(blob, fileName)
           }
           // 下载
-          this.downloadImg(resultObj.base64,fileName)
+          this.downloadImg(base64,fileName)
         })
       },
       //上传
