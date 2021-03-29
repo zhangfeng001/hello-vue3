@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-16 10:55:49
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-29 10:44:25
+ */
 import { createRouter, createWebHashHistory } from "vue-router";
 import { store } from "../store";
 import todoList from "../assets/list.json";
@@ -54,7 +62,12 @@ const router = createRouter({
       path:'/demo',
       name: "demo",
       component: () => import("../views/demo/index.vue"),
-    }
+    },
+    {
+      path:'/demo2',
+      name: "demo2",
+      component: () => import("../views/demo/index2.vue"),
+    },
   ],
 });
 router.beforeEach((to, from, next) => {
