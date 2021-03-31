@@ -1,6 +1,6 @@
 <template>
     <div ref="tagcanvasbox" class="tagcanvasbox">
-        <div>
+        <!-- <div>
             <p>1 判断鼠标落脚到哪个矩形</p>
             <p>2 移动到矩形内部，显示9个区域</p>
             <p>3 判断不同区域 显示不同鼠标样式</p>
@@ -8,7 +8,7 @@
             <p>5 矩形在矩形边框，缩放</p>
             <p>6 矩形外添加矩形</p>
             <p>7 右键点击矩形删除矩形</p>
-        </div>
+        </div> -->
         <canvas ref="tagcanvas" 
             width='844' height='475'
             @mousedown ="mouseDown($event)" 
@@ -16,6 +16,7 @@
             @mousemove ="mouseMove($event)"
             @contextmenu.prevent ="contextMenu($event)"
             @mouseout ="mouseOut($event)"
+            @mousewheel ="mousewheel($event)"
             ></canvas>
     </div>
 </template>
@@ -31,7 +32,7 @@ export default {
                     {h: 36,w: 58,x: 404,y: 161,color:'rgba(0, 33, 66 , 0.8)',shape:4},
                     {h: 67,w: 58,x: 239,y: 49,color:'rgba(228, 134, 50 , 0.8)',shape:3},
                     {h: 67,w: 58,x: 20,y: 20,color:'rgba(111, 84, 153 , 0.8)',shape:0},
-                ],  //两个矩形的宽高与坐标
+                ],// 画板上的图案
                 x:0, // 交叉轴的x
                 y:0, // 交叉轴的y
                 url:'', // 保存图片URL
@@ -45,8 +46,14 @@ export default {
                 side:0, // 代表9个区域
                 startX:0,// 拖拽起点
                 startY:0, // 拖拽起点
-                isRightClick:false // 是否正在使用右键点击
-            }
+                isRightClick:false, // 是否正在使用右键点击
+            },
+            // fontX:0,
+            // fontY:0,
+            // fontZoom:1,
+            // curZoom:1,
+            // translateX:0,
+            // translateY:0,
         }
     },
     mounted(){
@@ -166,6 +173,23 @@ export default {
             if (this.tagObj.resize) {// 在方框边框上按下的状态 缩放
                 this.reSizeRec(this.tagObj.side, this.tagObj.recs[this.tagObj.index], e.offsetX, e.offsetY, this.tagObj.recSize);
             }
+        },
+        // 鼠标滚轮事件
+        mousewheel (e) {
+            // let z = e.deltaY > 0 ? -0.1 : 0.1
+            // this.ctx.save()
+            // this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+            // this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+            // this.curZoom = this.fontZoom + z
+            // this.translateX = e.offsetX - (e.offsetX - this.translateX) * this.curZoom / this.fontZoom
+            // this.translateY = e.offsetY - (e.offsetY - this.translateY) * this.curZoom / this.fontZoom
+            // this.ctx.translate(this.translateX, this.translateY)
+            // this.ctx.scale(this.curZoom, this.curZoom);
+            // this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+            // this.ctx.restore()
+            // this.fontY = e.offsetY
+            // this.fontX = e.offsetX
+            // this.fontZoom = this.curZoom
         },
         // 取消默认行为 OK
         contextMenu(e){

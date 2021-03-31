@@ -4,7 +4,7 @@
  * @Author: lzy
  * @Date: 2021-03-29 14:17:38
  * @LastEditors: Andy
- * @LastEditTime: 2021-03-29 17:56:46
+ * @LastEditTime: 2021-03-31 17:37:31
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -23,14 +23,12 @@
     (function(){
         var c = document.getElementById("canvas");
         var ctx = c.getContext("2d");
-        var ax,
-            ay,
-            r = 30,
-            num=1;//绘制图形的参数
+        var ax,ay,r = 30,num=1;//绘制图形的参数
+        var timeOutEvent = 0;//区分拖拽和点击的参数
         //创建图形
         function createBlock(a,b,r){
             ctx.beginPath();
-            ctx.fillStyle = "yellow";
+            ctx.fillStyle = "red";
             ctx.arc(a,b,r,0,Math.PI*2);
             ctx.fill();
         }
@@ -39,6 +37,7 @@
             var e = ev||event;
             var x = e.clientX;
             var y = e.clientY;
+            timeOutEvent = setTimeout("longPress()",500);
             e.preventDefault();
             drag(x,y,r);
         };
@@ -65,6 +64,8 @@
                     var e = ev||event;
                     ax = e.clientX;
                     ay = e.clientY;
+                    clearTimeout(timeOutEvent);
+                    timeOutEvent = 0;
                     //鼠标移动每一帧都清楚画布内容，然后重新画圆
                     ctx.clearRect(0,0,c.width,c.height);
                     createBlock(ax,ay,r);
@@ -73,8 +74,15 @@
                 c.onmouseup = function(){
                     c.onmousemove = null;
                     c.onmouseup = null;
+                    clearTimeout(timeOutEvent);
+                    if(timeOutEvent!=0){
+                        alert("你这是点击，不是拖拽");
+                    }
                 }
             }
+        }
+        function longPress(){
+            timeOutEvent = 0;
         }
     })()
 </script>

@@ -1,0 +1,106 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>如何画动态的canvas图形</title>
+    <style>
+    canvas {border: 1px dashed black}
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="400" height="300"></canvas>
+<div>
+    <button onclick="addRandomCircle()">添加圆圈</button>
+    <button onclick="clearCanvas()">清除所有的圆圈</button>
+</div>
+<script type="text/javascript">
+//首先声明一个函数用于对象定义
+/*x:圆心x坐标
+  y:圆心Y坐标
+  radius: 半径
+  color: 圆的填充颜色
+*/
+function Cricle(x,y,radius,color){
+    this.x=x;
+    this.y=y;
+    this.radius=radius;
+    this.color=color;
+    this.isSelected =false;  //圆是否被选中
+}
+var circles=[] //保存圆对象；
+var canvas;  //  canvas对象
+var context;  // 绘图上下文
+//绘制圆的方法
+function addRandomCircle(){
+    var radius =Math.floor(Math.random()*50+10);
+    var x= Math.floor(Math.random()*canvas.width);
+    var y= Math.floor(Math.random()*canvas.height);
+ 
+    var colors = ['green','blue','red','yellow','magenta','orange','brown','purple','pink'];
+    var color = colors[Math.floor(Math.random()*8)];
+    //创建一个新圆
+    var circle = new Cricle(x,y,radius,color);
+    
+    circles.push(circle);
+    //重绘画布
+    drawCircles();
+}
+//画布函数
+function drawCircles(){
+    //清除画布，准备绘制
+    context.clearRect(0,0,canvas.width,canvas.height);
+    context.globalAlpha=0.85;  //定义透明度
+    context.strokeStyle = 'black'; // 边框颜色
+    //遍历所有的圆圈
+    for (var i=0;i<circles.length;i++){
+        var circle =circles[i];
+        if(circle.isSelected==true){
+            console.log(11111)
+            context.lineWidth=10;
+        }else{
+            console.log(222222)
+            context.lineWidth=1;
+        }
+        //绘制圆圈
+        context.beginPath();  //执行这句话后，下个圆就不会接着上个圆的尾部画了，会重新开始
+        context.arc(circle.x,circle.y,circle.radius,0,Math.PI*2);  // 参数分别为，x坐标y坐标，半径，起始角度，结束角度。
+        context.fillStyle =circle.color;   //填充色
+        context.fill();  //填充
+        context.stroke();  //将前面所有的步骤通过图像展现出来
+    }
+}
+//清除圆圈
+function clearCanvas(){
+     circles=[];
+    drawCircles();
+}
+var previousSelectedCircle;
+function canvasClick(e){
+    var clickX = e.pageX - canvas.offsetLeft;
+    var clickY = e.pageY - canvas.offsetTop;
+    console.log(clickX)
+    //查询被点击的圆
+    for ( var i = circles.length-1;i>=0;i--){  //从后往前循环的原因是：
+    //画圆时，遍历数组是从前往后，所以生成的圆后面的会覆盖前面，我们点击圆时，触发的肯定是上面的，这也是为什么这样遍历的原因。
+        var circle = circles[i];
+        var distanceFromCenter = Math.sqrt(Math.pow(circle.x-clickX,2)+Math.pow(circle.y-clickY,2));
+        if(distanceFromCenter<=circle.radius){  
+            if(previousSelectedCircle!=null) {previousSelectedCircle.isSelected=false};
+            previousSelectedCircle =circle;
+            circle.isSelected =true;
+            drawCircles();
+            return;
+        }
+    }
+}
+window.onload=function(){
+    canvas = document.getElementById("canvas"); 
+    context = canvas.getContext("2d");
+    canvas.onmousedown = this.canvasClick;
+}
+</script>
+</body>
+</html>
