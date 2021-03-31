@@ -1,10 +1,21 @@
 <template>
     <div ref="tagcanvasbox" class="tagcanvasbox">
+        <div>
+            <p>1 判断鼠标落脚到哪个矩形</p>
+            <p>2 移动到矩形内部，显示9个区域</p>
+            <p>3 判断不同区域 显示不同鼠标样式</p>
+            <p>4 鼠标在矩形内部，拖拽</p>
+            <p>5 矩形在矩形边框，缩放</p>
+            <p>6 矩形外添加矩形</p>
+            <p>7 右键点击矩形删除矩形</p>
+        </div>
         <canvas ref="tagcanvas" 
-            width='800' height='400'
+            width='844' height='475'
             @mousedown ="mouseDown($event)" 
             @mouseup ="mouseUp($event)"
             @mousemove ="mouseMove($event)"
+            @contextmenu.prevent ="contextMenu($event)"
+            @mouseout ="mouseOut($event)"
             ></canvas>
     </div>
 </template>
@@ -19,6 +30,7 @@ export default {
                 recs:[{h: 36,w: 58,x: 404,y: 161},{h: 67,w: 58,x: 239,y: 49}],  //两个矩形的宽高与坐标
                 x:0, // 交叉轴的x
                 y:0, // 交叉轴的y
+                url:'', // 保存图片URL
                 radious:5, // 边框可拖拽区间
                 showLitRecs:true, // 显示9个可拖拽点
                 recSize:5, // 可拖拽点的宽高
@@ -27,18 +39,35 @@ export default {
                 draw:false, // 要画新的矩形
                 index:-1, //正在操作哪个矩形
                 side:0, // 代表9个区域
+                startX:0,// 拖拽起点
+                startY:0, // 拖拽起点
                 isRightClick:false // 是否正在使用右键点击
             }
         }
     },
     mounted(){
         this.ctx = this.$refs.tagcanvas.getContext('2d');
-        this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
     },
     methods:{
+        // 中断
+        mouseOut(e){
+          let dom = this.$refs.tagcanvas;
+            let x =e.clientX; //此时鼠标区域距离body左边
+            let y =e.clientY;//此时鼠标区域距离body上边
+            let domx1 = dom.offsetLeft; //DOM左侧距离左侧距离
+            let domy1 = dom.offsetTop; //DOM上测距离顶部距离
+            let domx2 = dom.offsetLeft + dom.offsetWidth; //DOM右侧距离左侧距离
+            let domy2 = dom.offsetTop + dom.offsetHeight; //DOM下测距离顶部距离
+            console.log(x,y)
+            console.log(domx1,domy1,domx2,domy2)
+            if( x < domx1 || x > domx2 || y < domy1 || y > domy2){ // 如果鼠标落脚在canvas外边了
+                this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 清除canvas
+                this.drawOldRecs(this.tagObj.recs, this.ctx); // 重新画所有存在的矩形，交叉辅助线没有了
+            }
+        },
         // 按下 OK
         mouseDown(e){
-            console.log('mouseDown');
+            console.log('mouseDown',e.button);
             this.tagObj.x = e.offsetX; // 每次落脚的落脚点为轴线圆心
             this.tagObj.y = e.offsetY; // 每次落脚的落脚点为轴线圆心
             //得到落点所在框的序数
@@ -46,22 +75,22 @@ export default {
             if (e.button == 2) { // e.button==2 代表是右键
                 if (this.tagObj.index >= 0) { // 并且在矩形里
                     this.tagObj.isRightClick = true;
-                    console.log('右键点击鼠标')
                 }
                 return;
             }
             if (this.tagObj.index >= 0) { //在矩形里，移动或者放缩
+                this.tagObj.startX = this.tagObj.recs[this.tagObj.index].x; // 每次拖拽的落脚点都要记录，不然就从左上角开始了
+                this.tagObj.startY = this.tagObj.recs[this.tagObj.index].y;// 每次拖拽的落脚点都要记录，不然就从左上角开始了
                 // 9个区域
                 this.tagObj.side = this.getEventArea(this.tagObj.recs[this.tagObj.index], this.tagObj.x, this.tagObj.y, this.tagObj.radious);
                 if (this.tagObj.side < 9) { // 并且在边边上
-                    console.log('在矩形的边边上，此时要缩放')
                     this.tagObj.resize = true; // 这时候鼠标移动（mouseMove）就会缩放
                 } else { //并且在里边
-                    console.log('在矩形的里边，此时要拖动')
                     this.tagObj.drag = true; // 这时候鼠标移动（mouseMove）就会拖动
                 }
+                //移动过程9个小框也在动
+                this.drawLitRecs(this.ctx, this.prepareLitRecs(this.tagObj.recs[this.tagObj.index]), this.tagObj.recSize);
             } else { // 不再矩形里，在矩形外边
-                console.log('在矩形的外边，此时要添加')
                 this.tagObj.draw = true;// 这时候鼠标移动（mouseMove）就会添加矩形
             }
             // 配置鼠标的css样式
@@ -73,13 +102,24 @@ export default {
             if (this.tagObj.isRightClick == true) { // 如果是右键点击抬起的
                 // 获取当前是在哪里矩形里
                 this.tagObj.index = this.getEventIndex(this.tagObj.recs, this.tagObj.x, this.tagObj.y, this.tagObj.radious);
-                console.log(`删除索引为${this.tagObj.index}的矩形`)
+                // 删除掉这个矩形的数据
+                this.tagObj.recs.splice(this.tagObj.index, 1);
+                // 清空画板
+                this.clearCanvas(this.$refs.tagcanvas, this.ctx);
+                // 重新画删除后所剩的矩形数据
+                for (var i = 0; i < this.tagObj.recs.length; i++) {
+                    this.ctx.strokeRect(this.tagObj.recs[i].x, this.tagObj.recs[i].y, this.tagObj.recs[i].w, this.tagObj.recs[i].h);
+                }
+                this.tagObj.isRightClick = false; // 还原右键统计
                 return;
             }
             // 这里往下是左键抬起
             this.tagObj.resize = false; // 还原 缩放标识
             this.tagObj.drag = false; // 还原 拖拽标识
-            this.tagObj.draw = false; // 还原添加矩形标识
+            if (this.tagObj.draw) { // 如果是在添加矩形
+                this.addToRecs(this.$refs.tagcanvas, e); //那么就添加框
+                this.tagObj.draw = false; // 还原添加矩形标识
+            }
         },
         // 移动 OK
         mouseMove(e){
@@ -91,41 +131,40 @@ export default {
             this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
             index = this.getEventIndex(this.tagObj.recs, e.offsetX, e.offsetY, this.tagObj.radious); // 获得鼠标的落地所在的矩形
             if (index > -1) {
-                console.log('鼠标在第'+index+'个矩形里边')
+                // console.log('鼠标在第'+index+'个矩形里边')
                 side = this.getEventArea(this.tagObj.recs[index], e.offsetX, e.offsetY, this.tagObj.radious); //得到落点在一个框中的区域
             } else {
                 side = 0;
             }
-            var text = 
-                side ==1?'左上':
-                side==2?'左中':
-                side==3?'左下':
-                side==4?'右上':
-                side==5?'右中':
-                side==6?'右下':
-                side==7?'上中':
-                side==8?'下中':
-                side==9?'里边':
-                side==0?'外边':'啥也不是'
-                console.log('位置在',text)
-                console.log('紧接着画出鼠标css样式')
+            // var text = 
+            //     side ==1?'左上':
+            //     side==2?'左中':
+            //     side==3?'左下':
+            //     side==4?'右上':
+            //     side==5?'右中':
+            //     side==6?'右下':
+            //     side==7?'上中':
+            //     side==8?'下中':
+            //     side==9?'里边':
+            //     side==0?'外边':'啥也不是'
+            //     console.log('text',text)
             this.changeResizeCursor(this.$refs.tagcanvas, side); // 配置鼠标样式
             if (this.tagObj.showLitRecs && index >= 0 && side > 0) { // 说明在方框里呢（包括在边边）
-                console.log('此时要出现9个区域的方框')
                 this.drawLitRecs(this.ctx, this.prepareLitRecs(this.tagObj.recs[index]), this.tagObj.recSize); // 在方框里就会出现四周九个可操作点
             }
             if (this.tagObj.draw) {// 在方框外按下的状态 添加矩形
-                this.tagObj.draw = true; // 还原添加矩形标识
-                console.log('添加')
+                this.drawRec(this.$refs.tagcanvas, this.ctx, e);
             }
             if (this.tagObj.drag) {// 在方框里按下的状态 拖拽
-                this.tagObj.drag = true; // 还原 拖拽标识
-                console.log('拖拽')
+                this.moveRec(this.$refs.tagcanvas, this.tagObj.recs[this.tagObj.index], e);
             }
             if (this.tagObj.resize) {// 在方框边框上按下的状态 缩放
-                this.tagObj.resize = true; // 还原 缩放标识
-               console.log('缩放')
+                this.reSizeRec(this.tagObj.side, this.tagObj.recs[this.tagObj.index], e.offsetX, e.offsetY, this.tagObj.recSize);
             }
+        },
+        // 取消默认行为 OK
+        contextMenu(e){
+          return false;
         },
         //得到落点所在框的序数，-1代表没有落在任何框内 OK
         getEventIndex(recs, x, y, radious) {
@@ -217,6 +256,21 @@ export default {
                     canvas.style.cursor = "default";
             }
         },
+        // 添加矩形 OK
+        addToRecs(canvas, e) {
+            var rec = {};
+            // this.tagObj.x 按下时的x  e.offsetX 抬起时的x
+            // this.tagObj.y 按下时的y  e.offsetY 抬起时的y
+            rec.x = (this.tagObj.x > e.offsetX) ? e.offsetX : this.tagObj.x;
+            rec.y = (this.tagObj.y > e.offsetY) ? e.offsetY : this.tagObj.y;
+            rec.w = Math.abs(e.offsetX - this.tagObj.x);
+            rec.h = Math.abs(e.offsetY - this.tagObj.y);
+            //rec.type = currentSelectedType;
+            this.tagObj.newrecsObj = rec; //最后一个添加的矩形
+            this.tagObj.recs.push(this.tagObj.newrecsObj); // 推向矩形数组里
+            this.tagObj.url = this.$refs.tagcanvas.toDataURL(); // 每次画完就保存一下图片
+            // console.log('this.tagObj.url', this.tagObj.url)
+        },
         // 交叉辅助线 OK
         drawRuler(canvas, ctx, e) { 
             ctx.beginPath();
@@ -253,20 +307,53 @@ export default {
                 ctx.strokeRect(recs[i].x, recs[i].y, recs[i].w, recs[i].h);
             }
         },
+        // 鼠标拖拽画新矩形 OK
+        drawRec(canvas, ctx, e) {
+            ctx.strokeRect(this.tagObj.x, this.tagObj.y, e.offsetX - this.tagObj.x, e.offsetY - this.tagObj.y);
+        },
+        // 拖拽让矩形移动 OK
+        moveRec(canvas, rec, e) {
+            rec.x = this.tagObj.startX + e.offsetX - this.tagObj.x;
+            rec.y = this.tagObj.startY + e.offsetY - this.tagObj.y;
+        },
+        // 9个点对应缩放 OK
+        reSizeRec(index, rec, ex, ey, recSize) {
+            var temX = rec.x;
+            var temY = rec.y;
+            if (index < 4 && temX + rec.w - ex > recSize) {
+                rec.x = ex;
+            }
+            if ((index == 1 || index == 4 || index == 7) && temY + rec.h - ey > recSize) {
+                rec.y = ey;
+            }
+            if (index < 4) {
+                if (temX + rec.w - ex > recSize) {
+                    rec.w = temX + rec.w - ex;
+                }
+            } else if (index < 7) {
+                if (ex - temX > recSize) {
+                    rec.w = ex - temX;
+                }
+            }
+            if (index == 1 || index == 4 || index == 7) {
+                if (temY + rec.h - ey > recSize) {
+                    rec.h = temY + rec.h - ey;
+                }
+            } else if (index == 3 || index == 6 || index == 8) {
+                if (ey - temY > recSize) {
+                    rec.h = ey - temY;
+                }
+            }
+        }
     }
 }
 </script>
 <style scoped>
 .tagcanvasbox{
     width: 100%;
-    height: 100%;
-    position: relative;
-
+    height: 100vh;
 }
 canvas{
-    position: absolute;
-    top: 10px;
-    left: 10px;
     border: 1px solid #ccc;
 }
 </style>
