@@ -4,7 +4,7 @@
  * @Author: lzy
  * @Date: 2021-03-16 10:55:49
  * @LastEditors: Andy
- * @LastEditTime: 2021-03-29 10:44:25
+ * @LastEditTime: 2021-03-31 14:11:26
  */
 import { createRouter, createWebHashHistory } from "vue-router";
 import { store } from "../store";
@@ -76,6 +76,16 @@ const router = createRouter({
       name: "demo2",
       component: () => import("../views/demo/index2.vue"),
     },
+    {
+      path:'/demo3',
+      name: "demo3",
+      component: () => import("../views/demo/index3.vue"),
+    },
+    {
+      path:'/demo4',
+      name: "demo4",
+      component: () => import("../views/demo/index4.vue"),
+    }
   ],
 });
 router.beforeEach((to, from, next) => {

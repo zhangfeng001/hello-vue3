@@ -4,7 +4,7 @@
  * @Author: lzy
  * @Date: 2021-03-29 11:49:17
  * @LastEditors: Andy
- * @LastEditTime: 2021-03-29 16:42:48
+ * @LastEditTime: 2021-03-31 15:14:49
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +28,7 @@
         draw() {
             ctx.fillStyle = 'pink'
             ctx.fillRect(150, 150, 50, 50)
+            ctx.fillRect(200, 200, 50, 50)
         },
         zoom(offsetX, offsetY, z) {
             ctx.save()
@@ -45,6 +46,16 @@
             ctx.restore()
             
             this.fontZoom = this.curZoom
+        },
+        line (e) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle="#dfdfdf";
+            ctx.moveTo(e.offsetX, 0);
+            ctx.lineTo(e.offsetX, canvas.height);
+            ctx.moveTo(0, e.offsetY);
+            ctx.lineTo(canvas.width, e.offsetY);
+            ctx.stroke();
         }
     }
     obj.draw()

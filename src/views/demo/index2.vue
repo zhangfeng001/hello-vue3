@@ -27,7 +27,11 @@ export default {
             ctx:'',
             tagObj:{
                 newrecsObj:{},
-                recs:[{h: 36,w: 58,x: 404,y: 161},{h: 67,w: 58,x: 239,y: 49}],  //两个矩形的宽高与坐标
+                recs:[
+                    {h: 36,w: 58,x: 404,y: 161,color:'rgba(0, 33, 66 , 0.8)',shape:4},
+                    {h: 67,w: 58,x: 239,y: 49,color:'rgba(228, 134, 50 , 0.8)',shape:3},
+                    {h: 67,w: 58,x: 20,y: 20,color:'rgba(111, 84, 153 , 0.8)',shape:0},
+                ],  //两个矩形的宽高与坐标
                 x:0, // 交叉轴的x
                 y:0, // 交叉轴的y
                 url:'', // 保存图片URL
@@ -47,6 +51,7 @@ export default {
     },
     mounted(){
         this.ctx = this.$refs.tagcanvas.getContext('2d');
+        this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
     },
     methods:{
         // 中断
@@ -216,7 +221,9 @@ export default {
         // 画出9个点的矩形 OK
         drawLitRecs(ctx, data, size) {
             for (var i = 0; i < data.length; i++) {
-                ctx.strokeRect(data[i][0] - size / 2, data[i][1] - size / 2, size, size);
+                ctx.beginPath()
+                ctx.fillStyle="#888";
+                ctx.fillRect(data[i][0] - size / 2, data[i][1] - size / 2, size, size);
             }
         },
         // 配置鼠标的css样式 OK
@@ -265,6 +272,8 @@ export default {
             rec.y = (this.tagObj.y > e.offsetY) ? e.offsetY : this.tagObj.y;
             rec.w = Math.abs(e.offsetX - this.tagObj.x);
             rec.h = Math.abs(e.offsetY - this.tagObj.y);
+            rec.color = ['rgb(254, 67, 101)','rgb(252, 157, 154)','rgb(249, 205, 173)','rgb(200, 200, 169)','rgb(131, 175, 155)'][Math.floor(Math.random()*5+0)];
+            rec.shape = [0,3,4][Math.floor(Math.random()*3+0)];// 随机数
             //rec.type = currentSelectedType;
             this.tagObj.newrecsObj = rec; //最后一个添加的矩形
             this.tagObj.recs.push(this.tagObj.newrecsObj); // 推向矩形数组里
@@ -301,15 +310,39 @@ export default {
                 return 0;
             }
             for (var i = 0; i < recs.length; i++) {
-                this.ctx.beginPath();
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = "rgb(121, 245, 57)";
-                ctx.strokeRect(recs[i].x, recs[i].y, recs[i].w, recs[i].h);
+                if(recs[i].shape == 4){ // 四边形
+                    this.ctx.beginPath();
+                    ctx.lineWidth = 3;
+                    ctx.fillStyle = recs[i].color; //自定义颜色
+                    ctx.fillRect(recs[i].x, recs[i].y, recs[i].w, recs[i].h);
+                }
+                if(recs[i].shape == 3){ //三角形
+                    //填充三角形（等边）
+                    ctx.beginPath();
+                    ctx.moveTo(recs[i].x+recs[i].w/2,recs[i].y); //从A（100,0）开始
+                    ctx.lineTo(recs[i].x,recs[i].y+recs[i].h);
+                    ctx.lineTo(recs[i].x+recs[i].w,recs[i].y+recs[i].h); //B(0,173)-C(200,173)
+                    var grd = ctx.createLinearGradient(0,0,200,0);//使用渐变颜色填充,从(0,0)到(200,0) （左到右）
+                    grd.addColorStop(0,"#4CE8B2"); //起始颜色
+                    grd.addColorStop(1,"#EFD458"); //终点颜色
+                    ctx.fillStyle=grd; //以上面定义的渐变填充
+                    ctx.fill(); //闭合形状并且以填充方式绘制出来
+                    ctx.closePath();
+                }
+                if (recs[i].shape == 0) {
+                    ctx.beginPath();
+                    ctx.fillStyle = recs[i].color;
+                    ctx.ellipse(recs[i].x+recs[i].w/2,recs[i].y+recs[i].h/2,recs[i].w/2,recs[i].h/2,0,0,Math.PI*2,false);
+                    // ctx.arc(recs[i].x,recs[i].y,recs[i].w,0*Math.PI,2*Math.PI,false);
+                    ctx.fill()
+                    ctx.closePath();
+                }
             }
         },
         // 鼠标拖拽画新矩形 OK
         drawRec(canvas, ctx, e) {
-            ctx.strokeRect(this.tagObj.x, this.tagObj.y, e.offsetX - this.tagObj.x, e.offsetY - this.tagObj.y);
+            ctx.fillStyle = "rgb(121, 245, 57)";
+            ctx.fillRect(this.tagObj.x, this.tagObj.y, e.offsetX - this.tagObj.x, e.offsetY - this.tagObj.y);
         },
         // 拖拽让矩形移动 OK
         moveRec(canvas, rec, e) {
@@ -355,5 +388,6 @@ export default {
 }
 canvas{
     border: 1px solid #ccc;
+    background-color: #c0e7ed;
 }
 </style>
