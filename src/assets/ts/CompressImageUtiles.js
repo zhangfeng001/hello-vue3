@@ -16,6 +16,42 @@ export function convertBase64UrlToBlob(urlData) {
   }
   return new Blob([u8arr], {type: mime})
 }
+// base64 图片转 blob 后下载
+export function downloadImgFromBase64(base64,fileName) {
+  let compressImg = base64;
+  console.log(base64)
+  let parts = compressImg.split(";base64,");
+  let contentType = parts[0].split(":")[1];
+  let raw = window.atob(parts[1]);
+  let rawLength = raw.length;
+  let uInt8Array = new Uint8Array(rawLength);
+  for (let i = 0; i < rawLength; ++i) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+  const blob = new Blob([uInt8Array], { type: contentType });
+  compressImg = URL.createObjectURL(blob);
+  if (window.navigator.msSaveOrOpenBlob) {
+    // 兼容 ie 的下载方式
+    window.navigator.msSaveOrOpenBlob(blob, fileName);
+  } else {
+    const a = document.createElement("a");
+    a.href = compressImg;
+    a.setAttribute("download", fileName);
+    a.click();
+  }
+}
+export function downloadImgFromBlob(blob,fileName) {
+  let compressImg = URL.createObjectURL(blob);
+  if (window.navigator.msSaveOrOpenBlob) {
+    // 兼容 ie 的下载方式
+    window.navigator.msSaveOrOpenBlob(blob, fileName);
+  } else {
+    const a = document.createElement("a");
+    a.href = compressImg;
+    a.setAttribute("download", fileName);
+    a.click();
+  }
+}
 // 压缩图片
 export function compressImage(fileObj) {
   //最大高度
@@ -70,10 +106,16 @@ export function compressImage(fileObj) {
         canvas.width = compressedWidth;
         context.clearRect(0, 0, compressedWidth, compressedHeight);
         context.drawImage(img, 0, 0, compressedWidth, compressedHeight);
-        let base64 = canvas.toDataURL('image/*', 0.9); //png jpg 第二个参数不生效
-        let blob = convertBase64UrlToBlob(base64);
-        // 回调函数返回blob的值。也可根据自己的需求返回base64的值
-        resolve({blob,base64,fileName,oSize})
+        console.log(canvas)
+        let base64 = canvas.toDataURL('image/*'); 
+        // 通过base64转二进制
+        // let blob = convertBase64UrlToBlob(base64);
+        // 通过canvas转二进制
+        let blob = canvas.toBlob((blob)=>{
+          let url = URL.createObjectURL(blob)
+          //回调函数返回blob的值。也可根据自己的需求返回base64的值
+          resolve({blob,base64,fileName,oSize})
+        },'image/jpeg', 0.5);
       }
     }
   })
