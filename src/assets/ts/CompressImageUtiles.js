@@ -106,7 +106,7 @@ export function compressImage(fileObj) {
         canvas.width = compressedWidth;
         context.clearRect(0, 0, compressedWidth, compressedHeight);
         context.drawImage(img, 0, 0, compressedWidth, compressedHeight);
-        console.log(canvas)
+        
         let base64 = canvas.toDataURL('image/*'); 
         // 通过base64转二进制
         // let blob = convertBase64UrlToBlob(base64);
