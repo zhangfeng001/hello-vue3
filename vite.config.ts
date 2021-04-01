@@ -25,7 +25,7 @@ module.exports = {
   // 打包后的根路径
   base: './',
   // 入口
-  entry: 'index.html',
+  entry: './pubilc/index.html',
   // 出口
   outDir: 'dist',
   // 输出的静态资源的文件夹名称

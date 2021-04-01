@@ -1,0 +1,68 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lzy
+ * @Date: 2021-03-29 13:02:12
+ * @LastEditors: Andy
+ * @LastEditTime: 2021-03-31 09:51:10
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas style="background-color: #eee;" id="canvas" width="300" height="300"></canvas>
+    <script>
+        window.onload = ()=>{
+            var canvas = document.getElementById("canvas");
+            // 不移动坐标原点默认在左上方
+            // if (canvas.getContext) {
+            //     var ctx = canvas.getContext('2d')
+            //     ctx.beginPath();
+            //     ctx.strokeStyle='red'
+            //     ctx.strokeRect(5,5,25,15);
+            //     ctx.scale(2,2);
+            //     ctx.closePath();
+
+            //     ctx.beginPath()
+            //     ctx.strokeStyle='yellow'
+            //     ctx.strokeRect(5,5,25,15);
+            //     ctx.scale(2,2);
+            //     ctx.closePath()
+                
+            //     ctx.beginPath()
+            //     ctx.strokeStyle='pink'
+            //     ctx.strokeRect(5,5,25,15);
+            //     ctx.scale(2,2);
+            //     ctx.closePath()
+            //     ctx.strokeRect(5,5,25,15);
+            // }
+            if (canvas.getContext) {
+                var ctx = canvas.getContext('2d')
+                ctx.translate(300/2-50,300/2-50)
+
+                ctx.beginPath()
+                ctx.strokeStyle='blue'
+                ctx.strokeRect(0,0,100,100)
+                ctx.closePath()
+
+                ctx.translate(-20,-20)
+                ctx.beginPath()
+                ctx.strokeStyle='yellow'
+                ctx.strokeRect(0,0,140,140)
+                ctx.closePath()
+
+                ctx.translate(-25,-25)
+                ctx.beginPath()
+                ctx.strokeStyle='green'
+                ctx.strokeRect(0,0,190,190)
+                ctx.closePath()
+            }
+        }
+    </script>
+</body>
+</html>
