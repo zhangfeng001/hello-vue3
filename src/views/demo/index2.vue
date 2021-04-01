@@ -46,14 +46,14 @@ export default {
                 side:0, // 代表9个区域
                 startX:0,// 拖拽起点
                 startY:0, // 拖拽起点
-                isRightClick:false, // 是否正在使用右键点击
+                isRightClickIn:false, // 是否正在使用右键点击并且在矩形内部
+                isRightClickOut:false, // 是否正在使用右键点击并且在矩形外边
             },
-            // fontX:0,
-            // fontY:0,
-            // fontZoom:1,
-            // curZoom:1,
-            // translateX:0,
-            // translateY:0,
+            offset:{x:0,y:0}, // 可视区域外
+            scale:1,
+            scaleStep:0.1,
+            maxScale:4,
+            minScale:1
         }
     },
     mounted(){
@@ -80,13 +80,21 @@ export default {
         // 按下 OK
         mouseDown(e){
             console.log('mouseDown',e.button);
-            this.tagObj.x = e.offsetX; // 每次落脚的落脚点为轴线圆心
-            this.tagObj.y = e.offsetY; // 每次落脚的落脚点为轴线圆心
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
+            this.tagObj.x = realCanvasPosition.x; // 每次落脚的落脚点为轴线圆心
+            this.tagObj.y = realCanvasPosition.y; // 每次落脚的落脚点为轴线圆心
             //得到落点所在框的序数
             this.tagObj.index = this.getEventIndex(this.tagObj.recs, this.tagObj.x, this.tagObj.y, this.tagObj.radious);
             if (e.button == 2) { // e.button==2 代表是右键
                 if (this.tagObj.index >= 0) { // 并且在矩形里
-                    this.tagObj.isRightClick = true;
+                    this.tagObj.isRightClickIn = true;
+                }else {
+                    this.tagObj.isRightClickOut = true;
+                    console.log('点击右键在矩形的外边')
                 }
                 return;
             }
@@ -111,7 +119,7 @@ export default {
         // 抬起 OK
         mouseUp(e){
           // console.log('mouseUp',e);
-            if (this.tagObj.isRightClick == true) { // 如果是右键点击抬起的
+            if (this.tagObj.isRightClickIn == true) { // 如果是右键点击抬起的并且在矩形里边
                 // 获取当前是在哪里矩形里
                 this.tagObj.index = this.getEventIndex(this.tagObj.recs, this.tagObj.x, this.tagObj.y, this.tagObj.radious);
                 // 删除掉这个矩形的数据
@@ -122,8 +130,12 @@ export default {
                 for (var i = 0; i < this.tagObj.recs.length; i++) {
                     this.ctx.strokeRect(this.tagObj.recs[i].x, this.tagObj.recs[i].y, this.tagObj.recs[i].w, this.tagObj.recs[i].h);
                 }
-                this.tagObj.isRightClick = false; // 还原右键统计
+                this.tagObj.isRightClickIn = false; // 还原右键统计
                 return;
+            }
+            if(this.tagObj.isRightClickOut == true) {
+                // console.log('点击右键外边并且起来')
+                this.tagObj.isRightClickOut = false // 还原右键统计
             }
             // 这里往下是左键抬起
             this.tagObj.resize = false; // 还原 缩放标识
@@ -136,15 +148,21 @@ export default {
         // 移动 OK
         mouseMove(e){
           // console.log('mouseMove',e);
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
+
             var index;
             var side;
             this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
             this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
             this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
-            index = this.getEventIndex(this.tagObj.recs, e.offsetX, e.offsetY, this.tagObj.radious); // 获得鼠标的落地所在的矩形
+            index = this.getEventIndex(this.tagObj.recs, realCanvasPosition.x, realCanvasPosition.y, this.tagObj.radious); // 获得鼠标的落地所在的矩形
             if (index > -1) {
                 // console.log('鼠标在第'+index+'个矩形里边')
-                side = this.getEventArea(this.tagObj.recs[index], e.offsetX, e.offsetY, this.tagObj.radious); //得到落点在一个框中的区域
+                side = this.getEventArea(this.tagObj.recs[index], realCanvasPosition.x, realCanvasPosition.y, this.tagObj.radious); //得到落点在一个框中的区域
             } else {
                 side = 0;
             }
@@ -171,25 +189,44 @@ export default {
                 this.moveRec(this.$refs.tagcanvas, this.tagObj.recs[this.tagObj.index], e);
             }
             if (this.tagObj.resize) {// 在方框边框上按下的状态 缩放
-                this.reSizeRec(this.tagObj.side, this.tagObj.recs[this.tagObj.index], e.offsetX, e.offsetY, this.tagObj.recSize);
+                this.reSizeRec(this.tagObj.side, this.tagObj.recs[this.tagObj.index], realCanvasPosition.x, realCanvasPosition.y, this.tagObj.recSize);
+            }
+            if(this.tagObj.isRightClickOut == true) {
+                console.log('点击右键外边并且移动中')
             }
         },
         // 鼠标滚轮事件
         mousewheel (e) {
-            // let z = e.deltaY > 0 ? -0.1 : 0.1
-            // this.ctx.save()
-            // this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
-            // this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
-            // this.curZoom = this.fontZoom + z
-            // this.translateX = e.offsetX - (e.offsetX - this.translateX) * this.curZoom / this.fontZoom
-            // this.translateY = e.offsetY - (e.offsetY - this.translateY) * this.curZoom / this.fontZoom
-            // this.ctx.translate(this.translateX, this.translateY)
-            // this.ctx.scale(this.curZoom, this.curZoom);
-            // this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
-            // this.ctx.restore()
-            // this.fontY = e.offsetY
-            // this.fontX = e.offsetX
-            // this.fontZoom = this.curZoom
+            e.preventDefault()
+            console.log('asd',this.scale,this.minScale)
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:canvasPosition.x - this.offset.x,
+                y:canvasPosition.y - this.offset.y,
+            }
+            const dealtX = realCanvasPosition.x / this.scale * this.scaleStep
+            const dealtY = realCanvasPosition.y / this.scale * this.scaleStep
+            if (e.wheelDelta > 0 && this.scale < this.maxScale) {
+                console.log('up')
+                this.offset.x -= dealtX
+                this.offset.y -= dealtY
+                this.scale += this.scaleStep
+            }else if (e.wheelDelta <=0 && this.scale > this.minScale){
+                console.log('down')
+                this.offset.x += dealtX
+                this.offset.y += dealtY
+                this.scale -= this.scaleStep
+            }
+            this.ctx.setTransform(this.scale,0,0,this.scale,this.offset.x,this.offset.y)
+            this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+            this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+            this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+        },
+        getCanvasPosition(e){
+            return {
+                x:e.offsetX,
+                y:e.offsetY
+            }
         },
         // 取消默认行为 OK
         contextMenu(e){
@@ -292,10 +329,15 @@ export default {
             var rec = {};
             // this.tagObj.x 按下时的x  e.offsetX 抬起时的x
             // this.tagObj.y 按下时的y  e.offsetY 抬起时的y
-            rec.x = (this.tagObj.x > e.offsetX) ? e.offsetX : this.tagObj.x;
-            rec.y = (this.tagObj.y > e.offsetY) ? e.offsetY : this.tagObj.y;
-            rec.w = Math.abs(e.offsetX - this.tagObj.x);
-            rec.h = Math.abs(e.offsetY - this.tagObj.y);
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
+            rec.x = (this.tagObj.x > realCanvasPosition.x) ? realCanvasPosition.x : this.tagObj.x;
+            rec.y = (this.tagObj.y > realCanvasPosition.y) ? realCanvasPosition.y : this.tagObj.y;
+            rec.w = Math.abs(realCanvasPosition.x - this.tagObj.x);
+            rec.h = Math.abs(realCanvasPosition.y - this.tagObj.y);
             rec.color = ['rgb(254, 67, 101)','rgb(252, 157, 154)','rgb(249, 205, 173)','rgb(200, 200, 169)','rgb(131, 175, 155)'][Math.floor(Math.random()*5+0)];
             rec.shape = [0,3,4][Math.floor(Math.random()*3+0)];// 随机数
             //rec.type = currentSelectedType;
@@ -306,13 +348,18 @@ export default {
         },
         // 交叉辅助线 OK
         drawRuler(canvas, ctx, e) { 
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
             ctx.beginPath();
             ctx.lineWidth = 1;
             ctx.strokeStyle="#000";
-            ctx.moveTo(e.offsetX, 0);
-            ctx.lineTo(e.offsetX, canvas.height);
-            ctx.moveTo(0, e.offsetY);
-            ctx.lineTo(canvas.width, e.offsetY);
+            ctx.moveTo(realCanvasPosition.x, 0);
+            ctx.lineTo(realCanvasPosition.x, canvas.height);
+            ctx.moveTo(0, realCanvasPosition.y);
+            ctx.lineTo(canvas.width, realCanvasPosition.y);
             ctx.stroke();
         },
         //获得矩形9个点的坐标 OK
@@ -365,13 +412,23 @@ export default {
         },
         // 鼠标拖拽画新矩形 OK
         drawRec(canvas, ctx, e) {
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
             ctx.fillStyle = "rgb(121, 245, 57)";
-            ctx.fillRect(this.tagObj.x, this.tagObj.y, e.offsetX - this.tagObj.x, e.offsetY - this.tagObj.y);
+            ctx.fillRect(this.tagObj.x, this.tagObj.y, realCanvasPosition.x - this.tagObj.x, realCanvasPosition.y - this.tagObj.y);
         },
         // 拖拽让矩形移动 OK
         moveRec(canvas, rec, e) {
-            rec.x = this.tagObj.startX + e.offsetX - this.tagObj.x;
-            rec.y = this.tagObj.startY + e.offsetY - this.tagObj.y;
+            const canvasPosition = this.getCanvasPosition(e)
+            const realCanvasPosition = {
+                x:(canvasPosition.x - this.offset.x) / this.scale,
+                y:(canvasPosition.y - this.offset.y) / this.scale,
+            }
+            rec.x = this.tagObj.startX + realCanvasPosition.x - this.tagObj.x;
+            rec.y = this.tagObj.startY + realCanvasPosition.y - this.tagObj.y;
         },
         // 9个点对应缩放 OK
         reSizeRec(index, rec, ex, ey, recSize) {

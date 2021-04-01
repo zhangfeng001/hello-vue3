@@ -4,7 +4,7 @@
  * @Author: lzy
  * @Date: 2021-03-16 10:55:49
  * @LastEditors: Andy
- * @LastEditTime: 2021-03-31 14:11:26
+ * @LastEditTime: 2021-04-01 16:57:19
  */
 import { createRouter, createWebHashHistory } from "vue-router";
 import { store } from "../store";
@@ -85,6 +85,11 @@ const router = createRouter({
       path:'/demo4',
       name: "demo4",
       component: () => import("../views/demo/index4.vue"),
+    },
+    {
+      path:'/demo5',
+      name: "demo5",
+      component: () => import("../views/demo/index5.vue"),
     }
   ],
 });
