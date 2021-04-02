@@ -1,4 +1,7 @@
 <template>
+  <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible" :mask='false' title="确认删除吗" @ok="handleOk" ok-text="确认" cancel-text="取消">
+    <p>删除后该元素不再显示！</p>
+  </a-modal>
   <div ref="tagcanvasbox" class="tagcanvasbox box">
     <div class="leftBox">
       <!-- 圆 -->
@@ -75,13 +78,15 @@ export default {
         side: 0, // 代表9个区域
         startX: 0, // 拖拽起点
         startY: 0, // 拖拽起点
-        isRightClick: false, // 是否正在使用右键点击
+        isRightClickIn: false, // 是否正在使用右键点击并且再矩形内
       },
       offset:{x:0,y:0}, // 可视区域外
       scale:1,
       scaleStep:0.1,
       maxScale:4,
-      minScale:1
+      minScale:0.5,
+      isTopIndex:-1,
+      visible:false,
     };
   },
   mounted() {
@@ -89,14 +94,46 @@ export default {
     this.ctx = this.$refs.tagcanvas.getContext("2d");
     //画老的矩形
     this.drawOldRecs(this.tagObj.recs, this.ctx);
-    var that = this;
-    document.onmouseup= function (ev2) {that.mouseUp() }
+    document.oncontextmenu = (e) => { // 取消默认事件
+        e.preventDefault()
+    }
+    document.addEventListener('keydown',(e)=>{
+      if (this.tagObj.recs[this.tagObj.index]){ // 是左击了并且击了图案
+        if(e.keyCode == 37) {
+          // console.log('我要改变这个矩形的宽度，并且x轴左移动',this.tagObj.recs[this.tagObj.index])
+          this.tagObj.recs[this.tagObj.index].w++
+          this.tagObj.recs[this.tagObj.index].x--
+        }else if (e.keyCode ==38) {
+          // console.log('我要改变这个矩形的高度，并且y轴上移动',this.tagObj.recs[this.tagObj.index])
+          this.tagObj.recs[this.tagObj.index].h++
+          this.tagObj.recs[this.tagObj.index].y--
+        }else if (e.keyCode == 39) {
+          // console.log('我要改变这个矩形的宽度',this.tagObj.recs[this.tagObj.index])
+          this.tagObj.recs[this.tagObj.index].w++
+        }else if (e.keyCode == 40) {
+          // console.log('我要改变这个矩形的高度',this.tagObj.recs[this.tagObj.index])
+          this.tagObj.recs[this.tagObj.index].h++
+        }
+        this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+        this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+        this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+      }
+    })
     // 拖拽
     this.drag("triangle");
     this.drag("circular");
     this.drag("rectangle");
   },
   methods: {
+    handleOk(){
+      // 删除掉这个矩形的数据
+      this.tagObj.recs.splice(this.tagObj.index, 1);
+      this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+      // this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+      this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+      this.tagObj.isRightClickIn = false; // 还原右键统计
+      this.visible = false
+    },
     getOffsetLeft(obj) {
       //获取元素距离浏览器左侧距离
       var tmp = obj.offsetLeft;
@@ -152,7 +189,6 @@ export default {
             currentLeft >= canvasLeft &&
             currentLeft <= canvasRight
           ) {
-            console.log('落在里边了');
             //两个矩形的宽高与坐标
             if (!flag) {
               that.clearCanvas(that.$refs.tagcanvas, that.ctx); // 清除canvas
@@ -233,7 +269,9 @@ export default {
         // e.button==2 代表是右键
         if (this.tagObj.index >= 0) {
           // 并且在矩形里
-          this.tagObj.isRightClick = true;
+          this.tagObj.isRightClickIn = true;
+        }else {
+          this.tagObj.draw = true; // 这时候鼠标移动（mouseMove）就会添加矩形
         }
         return;
       }
@@ -261,43 +299,37 @@ export default {
           this.prepareLitRecs(this.tagObj.recs[this.tagObj.index]),
           this.tagObj.recSize
         );
-      } else {
-        // 不再矩形里，在矩形外边
-        this.tagObj.draw = true; // 这时候鼠标移动（mouseMove）就会添加矩形
+      }else {
+        console.log('鼠标左击图形外边')
       }
       // 配置鼠标的css样式
       this.changeResizeCursor(this.$refs.tagcanvas, this.tagObj.side); //判断小框类型
     },
     // 抬起 OK
     mouseUp(e) {
-      if (this.tagObj.isRightClick == true) {
-        // 如果是右键点击抬起的
-        // 获取当前是在哪里矩形里
+      if (this.tagObj.isRightClickIn == true) {
+        // 如果是右键点击图案里边
         this.tagObj.index = this.getEventIndex(
           this.tagObj.recs,
           this.tagObj.x,
           this.tagObj.y,
           this.tagObj.radious
         );
-        // 删除掉这个矩形的数据
-        this.tagObj.recs.splice(this.tagObj.index, 1);
-        // 清空画板
-        this.clearCanvas(this.$refs.tagcanvas, this.ctx);
-        // 重新画删除后所剩的矩形数据
-        for (var i = 0; i < this.tagObj.recs.length; i++) {
-          this.ctx.strokeRect(
-            this.tagObj.recs[i].x,
-            this.tagObj.recs[i].y,
-            this.tagObj.recs[i].w,
-            this.tagObj.recs[i].h
-          );
-        }
-        this.tagObj.isRightClick = false; // 还原右键统计
+        this.visible = true // 显示出确认弹层
+        this.tagObj.isRightClickIn = false
         return;
       }
       // 这里往下是左键抬起
       this.tagObj.resize = false; // 还原 缩放标识
-      this.tagObj.drag = false; // 还原 拖拽标识
+      if(this.tagObj.drag == true) {
+        //移动过程9个小框也在动
+        this.drawLitRecs(
+          this.ctx,
+          this.prepareLitRecs(this.tagObj.recs[this.tagObj.index]),
+          this.tagObj.recSize
+        );
+        this.tagObj.drag = false; // 还原 拖拽标识
+      }
       if (this.tagObj.draw) {
         // 如果是在添加矩形
         this.addToRecs(this.$refs.tagcanvas, e); //那么就添加框
@@ -367,13 +399,12 @@ export default {
     // 鼠标滚轮事件
     mousewheel (e) {
         e.preventDefault()
-        console.log('asd',this.scale,this.minScale)
         const canvasPosition = this.getCanvasPosition(e)
         const realCanvasPosition = {
             x:canvasPosition.x - this.offset.x,
             y:canvasPosition.y - this.offset.y,
         }
-        const dealtX = realCanvasPosition.x / this.scale * this.scaleStep
+        const dealtX = realCanvasPosition.x / this.scale * this.scaleStep // 当前坐标/缩放系数*缩放系数升值 也就是滚出了canvas视口的数量
         const dealtY = realCanvasPosition.y / this.scale * this.scaleStep
         if (e.wheelDelta > 0 && this.scale < this.maxScale) {
             console.log('up')
@@ -391,6 +422,7 @@ export default {
         this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
         this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
     },
+    // 获取鼠标距边测距离
     getCanvasPosition(e){
         return {
             x:e.offsetX,
@@ -604,10 +636,11 @@ export default {
           ctx.moveTo(recs[i].x + recs[i].w / 2, recs[i].y); //从A（100,0）开始
           ctx.lineTo(recs[i].x, recs[i].y + recs[i].h);
           ctx.lineTo(recs[i].x + recs[i].w, recs[i].y + recs[i].h); //B(0,173)-C(200,173)
-          var grd = ctx.createLinearGradient(0, 0, 200, 0); //使用渐变颜色填充,从(0,0)到(200,0) （左到右）
-          grd.addColorStop(0, "#4CE8B2"); //起始颜色
-          grd.addColorStop(1, "#EFD458"); //终点颜色
-          ctx.fillStyle = grd; //以上面定义的渐变填充
+          // var grd = ctx.createLinearGradient(0, 0, 200, 0); //使用渐变颜色填充,从(0,0)到(200,0) （左到右）
+          // grd.addColorStop(0, "#4CE8B2"); //起始颜色
+          // grd.addColorStop(1, "#EFD458"); //终点颜色
+          // ctx.fillStyle = grd; //以上面定义的渐变填充
+          ctx.fillStyle = recs[i].color;
           ctx.fill(); //闭合形状并且以填充方式绘制出来
           ctx.closePath();
         }
