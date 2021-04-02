@@ -101,12 +101,14 @@ export default {
       if (this.tagObj.recs[this.tagObj.index]){ // 是左击了并且击了图案
         if(e.keyCode == 37 && this.tagObj.recs[this.tagObj.index].x >0) {
           this.tagObj.recs[this.tagObj.index].x--
-        }else if (e.keyCode ==38&& this.tagObj.recs[this.tagObj.index].y >0) {
+        }else if (e.keyCode ==38 && this.tagObj.recs[this.tagObj.index].y >0) {
           this.tagObj.recs[this.tagObj.index].y--
-        }else if (e.keyCode == 39) {
+        }else if (e.keyCode == 39 && this.tagObj.recs[this.tagObj.index].x <(this.$refs.tagcanvas.width-this.tagObj.recs[this.tagObj.index].w)) {
           this.tagObj.recs[this.tagObj.index].x++
-        }else if (e.keyCode == 40) {
+        }else if (e.keyCode == 40 && this.tagObj.recs[this.tagObj.index].y <(this.$refs.tagcanvas.height-this.tagObj.recs[this.tagObj.index].h)) {
           this.tagObj.recs[this.tagObj.index].y++
+        }else {
+          alert('到边边了')
         }
         this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
         this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
