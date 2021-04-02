@@ -99,20 +99,14 @@ export default {
     }
     document.addEventListener('keydown',(e)=>{
       if (this.tagObj.recs[this.tagObj.index]){ // 是左击了并且击了图案
-        if(e.keyCode == 37) {
-          // console.log('我要改变这个矩形的宽度，并且x轴左移动',this.tagObj.recs[this.tagObj.index])
-          this.tagObj.recs[this.tagObj.index].w++
+        if(e.keyCode == 37 && this.tagObj.recs[this.tagObj.index].x >0) {
           this.tagObj.recs[this.tagObj.index].x--
-        }else if (e.keyCode ==38) {
-          // console.log('我要改变这个矩形的高度，并且y轴上移动',this.tagObj.recs[this.tagObj.index])
-          this.tagObj.recs[this.tagObj.index].h++
+        }else if (e.keyCode ==38&& this.tagObj.recs[this.tagObj.index].y >0) {
           this.tagObj.recs[this.tagObj.index].y--
         }else if (e.keyCode == 39) {
-          // console.log('我要改变这个矩形的宽度',this.tagObj.recs[this.tagObj.index])
-          this.tagObj.recs[this.tagObj.index].w++
+          this.tagObj.recs[this.tagObj.index].x++
         }else if (e.keyCode == 40) {
-          // console.log('我要改变这个矩形的高度',this.tagObj.recs[this.tagObj.index])
-          this.tagObj.recs[this.tagObj.index].h++
+          this.tagObj.recs[this.tagObj.index].y++
         }
         this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
         this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
