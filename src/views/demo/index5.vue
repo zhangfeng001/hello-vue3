@@ -1,4 +1,5 @@
 <template>
+  <div @click='qingkong'>清空</div>
   <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible" :mask='false' title="确认删除吗" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <p>删除后该元素不再显示！</p>
   </a-modal>
@@ -83,7 +84,7 @@ export default {
       offset:{x:0,y:0}, // 可视区域外
       scale:1,
       scaleStep:0.1,
-      maxScale:4,
+      maxScale:2,
       minScale:0.5,
       isTopIndex:-1,
       visible:false,
@@ -121,6 +122,9 @@ export default {
     this.drag("rectangle");
   },
   methods: {
+    qingkong () {
+      this.ctx.clearRect(- this.offset.x / this.scale, - this.offset.y / this.scale, this.$refs.tagcanvas.width/this.scale, this.$refs.tagcanvas.height/this.scale);
+    },
     handleOk(){
       // 删除掉这个矩形的数据
       this.tagObj.recs.splice(this.tagObj.index, 1);
@@ -339,6 +343,7 @@ export default {
           x:(canvasPosition.x - this.offset.x) / this.scale,
           y:(canvasPosition.y - this.offset.y) / this.scale,
       }
+      console.log(canvasPosition)
       var index;
       var side;
       this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
@@ -450,7 +455,7 @@ export default {
     },
     // 橡皮擦 OK
     clearCanvas(canvas, ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.ctx.clearRect(- this.offset.x / this.scale, - this.offset.y / this.scale, this.$refs.tagcanvas.width/this.scale, this.$refs.tagcanvas.height/this.scale);
     },
     //得到落点在一个框中的区域 OK
     getEventArea(data, x, y, radious) {
@@ -592,10 +597,10 @@ export default {
       ctx.lineWidth = 1;
       ctx.strokeStyle = "#515050";
       ctx.setLineDash([5, 5]);
-      ctx.moveTo(realCanvasPosition.x, 0);
-      ctx.lineTo(realCanvasPosition.x, canvas.height);
-      ctx.moveTo(0, realCanvasPosition.y);
-      ctx.lineTo(canvas.width, realCanvasPosition.y);
+      ctx.moveTo(realCanvasPosition.x, - this.offset.y / this.scale);
+      ctx.lineTo(realCanvasPosition.x, (canvas.height- this.offset.y)/this.scale);
+      ctx.moveTo(- this.offset.x / this.scale, realCanvasPosition.y);
+      ctx.lineTo((canvas.width- this.offset.x)/this.scale, realCanvasPosition.y);
       ctx.stroke();
     },
     //获得矩形9个点的坐标 OK
