@@ -81,6 +81,9 @@ export default {
         startX: 0, // 拖拽起点
         startY: 0, // 拖拽起点
         isRightClickIn: false, // 是否正在使用右键点击并且再矩形内
+        moveStartXY:{
+          x:0,y:0
+        }
       },
       offset:{x:0,y:0}, // 可视区域外
       scale:1,
@@ -303,6 +306,8 @@ export default {
       }else {
         console.log('鼠标左击图形外边')
         this.tagObj.moveStart = true;
+        this.tagObj.moveStartXY.x =realCanvasPosition.x
+        this.tagObj.moveStartXY.y =realCanvasPosition.y 
       }
       // 配置鼠标的css样式
       this.changeResizeCursor(this.$refs.tagcanvas, this.tagObj.side); //判断小框类型
@@ -403,6 +408,12 @@ export default {
       }
       if (this.tagObj.moveStart) {
         console.log('移动画布中')
+        this.offset.x += realCanvasPosition.x - this.tagObj.moveStartXY.x
+        this.offset.y += realCanvasPosition.y - this.tagObj.moveStartXY.y
+        this.ctx.setTransform(this.scale,0,0,this.scale,this.offset.x,this.offset.y)
+        this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+        this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+        this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
       }
     },
     // 鼠标滚轮事件
