@@ -75,6 +75,7 @@ export default {
         drag: false, // 要拖拽
         resize: false, // 要缩放
         draw: false, // 要画新的矩形
+        moveStart:false,
         index: -1, //正在操作哪个矩形
         side: 0, // 代表9个区域
         startX: 0, // 拖拽起点
@@ -301,6 +302,7 @@ export default {
         );
       }else {
         console.log('鼠标左击图形外边')
+        this.tagObj.moveStart = true;
       }
       // 配置鼠标的css样式
       this.changeResizeCursor(this.$refs.tagcanvas, this.tagObj.side); //判断小框类型
@@ -335,6 +337,9 @@ export default {
         this.addToRecs(this.$refs.tagcanvas, e); //那么就添加框
         this.tagObj.draw = false; // 还原添加矩形标识
       }
+      if(this.tagObj.moveStart) {
+        this.tagObj.moveStart = false
+      }
     },
     // 移动 OK
     mouseMove(e) {
@@ -343,7 +348,7 @@ export default {
           x:(canvasPosition.x - this.offset.x) / this.scale,
           y:(canvasPosition.y - this.offset.y) / this.scale,
       }
-      console.log(canvasPosition)
+      // console.log(canvasPosition)
       var index;
       var side;
       this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
@@ -396,17 +401,20 @@ export default {
           this.tagObj.recSize
         );
       }
+      if (this.tagObj.moveStart) {
+        console.log('移动画布中')
+      }
     },
     // 鼠标滚轮事件
     mousewheel (e) {
         e.preventDefault()
         const canvasPosition = this.getCanvasPosition(e)
         const realCanvasPosition = {
-            x:canvasPosition.x - this.offset.x,
-            y:canvasPosition.y - this.offset.y,
-        }
-        const dealtX = realCanvasPosition.x / this.scale * this.scaleStep // 当前坐标/缩放系数*缩放系数升值 也就是滚出了canvas视口的数量
-        const dealtY = realCanvasPosition.y / this.scale * this.scaleStep
+          x:(canvasPosition.x - this.offset.x) / this.scale,
+          y:(canvasPosition.y - this.offset.y) / this.scale,
+      }
+        const dealtX = realCanvasPosition.x  * this.scaleStep // 当前坐标/缩放系数*缩放系数升值 也就是滚出了canvas视口的数量
+        const dealtY = realCanvasPosition.y  * this.scaleStep
         if (e.wheelDelta > 0 && this.scale < this.maxScale) {
             console.log('up')
             this.offset.x -= dealtX
