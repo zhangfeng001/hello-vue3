@@ -1,7 +1,9 @@
 <template>
-  <div @click='qingkong'>清空</div>
   <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible" :mask='false' title="确认删除吗" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <p>删除后该元素不再显示！</p>
+  </a-modal>
+  <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible2" :mask='false' title="生成图片成功！" ok-text="下载" @ok="handleCopy" cancel-text="取消">
+    <img style="width:300px" :src="tagObj.url" alt="">
   </a-modal>
   <div ref="tagcanvasbox" class="tagcanvasbox box">
     <div class="leftBox">
@@ -74,7 +76,8 @@ export default {
         recSize: 3, // 可拖拽点的宽高
         drag: false, // 要拖拽
         resize: false, // 要缩放
-        draw: false, // 要画新的矩形
+        draw: false, // 右击图形外边
+        drawMove:false,//右击图形外边并且是否移动了,移动就画图 没有移动就显示方框
         moveStart:false,
         index: -1, //正在操作哪个矩形
         side: 0, // 代表9个区域
@@ -89,9 +92,10 @@ export default {
       scale:1,
       scaleStep:0.1,
       maxScale:2,
-      minScale:0.5,
+      minScale:1,
       isTopIndex:-1,
       visible:false,
+      visible2:false
     };
   },
   mounted() {
@@ -99,6 +103,7 @@ export default {
     this.ctx = this.$refs.tagcanvas.getContext("2d");
     //画老的矩形
     this.drawOldRecs(this.tagObj.recs, this.ctx);
+    this.tagObj.url = this.$refs.tagcanvas.toDataURL(); // 每次画完就保存一下图片
     document.oncontextmenu = (e) => { // 取消默认事件
         e.preventDefault()
     }
@@ -126,9 +131,6 @@ export default {
     this.drag("rectangle");
   },
   methods: {
-    qingkong () {
-      this.ctx.clearRect(- this.offset.x / this.scale, - this.offset.y / this.scale, this.$refs.tagcanvas.width/this.scale, this.$refs.tagcanvas.height/this.scale);
-    },
     handleOk(){
       // 删除掉这个矩形的数据
       this.tagObj.recs.splice(this.tagObj.index, 1);
@@ -137,6 +139,9 @@ export default {
       this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
       this.tagObj.isRightClickIn = false; // 还原右键统计
       this.visible = false
+    },
+    handleCopy(){
+      let imgData = this.tagObj.url; //填写你的base64
     },
     getOffsetLeft(obj) {
       //获取元素距离浏览器左侧距离
@@ -256,12 +261,9 @@ export default {
     // 按下 OK
     mouseDown(e) {
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
       this.tagObj.x = canvasPosition.x; // 每次落脚的落脚点为轴线圆心
       this.tagObj.y = canvasPosition.y; // 每次落脚的落脚点为轴线圆心
+      // console.log(this.ctx.isPointInPath(canvasPosition.y, canvasPosition.y))
       //得到落点所在框的序数
       this.tagObj.index = this.getEventIndex(
         this.tagObj.recs,
@@ -274,10 +276,13 @@ export default {
         if (this.tagObj.index >= 0) {
           // 并且在矩形里
           this.tagObj.isRightClickIn = true;
+          this.removeBox()
         }else {
           this.tagObj.draw = true; // 这时候鼠标移动（mouseMove）就会添加矩形
         }
         return;
+      }else {
+        this.removeBox()
       }
       if (this.tagObj.index >= 0) {
         //在矩形里，移动或者放缩
@@ -304,7 +309,7 @@ export default {
           this.tagObj.recSize
         );
       }else {
-        console.log('鼠标左击图形外边')
+        // console.log('鼠标左击图形外边')
         this.tagObj.moveStart = true;
         this.tagObj.moveStartXY.x =canvasPosition.x
         this.tagObj.moveStartXY.y =canvasPosition.y 
@@ -337,23 +342,75 @@ export default {
         );
         this.tagObj.drag = false; // 还原 拖拽标识
       }
-      if (this.tagObj.draw) {
+      if(this.tagObj.drawMove == false && this.tagObj.draw){
+        console.log('要显示弹框',e.clientX,e.clientY)
+        this.creatBox(e.clientX,e.clientY,e) // 添加弹出矩形
+        this.tagObj.draw = false; // 还原添加矩形标识
+      }
+      if (this.tagObj.drawMove && this.tagObj.draw) {
+        console.log('要添加图案')
         // 如果是在添加矩形
         this.addToRecs(this.$refs.tagcanvas, e); //那么就添加框
         this.tagObj.draw = false; // 还原添加矩形标识
+        this.tagObj.drawMove = false
       }
       if(this.tagObj.moveStart) {
         this.tagObj.moveStart = false
       }
     },
+    // 添加弹出矩形
+    creatBox(clientX = 0,clientY = 0,e){
+      if (document.getElementById('creatBox')) {
+          document.getElementById('creatBox').style.left = clientX+ 'px';
+          document.getElementById('creatBox').style.top = clientY+ 'px';
+      }else {
+        let box =document.createElement('div')
+        let innerHTMl = `<div style='padding:4px;cursor:pointer' id='remove'>清空画板</div>
+                        <div style='padding:4px;cursor:pointer' id='add'>添加图形</div>
+                        <div style='padding:4px;cursor:pointer' id='install'>生成图片</div>`
+        box.innerHTML = innerHTMl;
+        box.id = 'creatBox';
+        box.style.backgroundColor = '#ffffff';
+        box.style.position = 'fixed';
+        box.style.left = clientX+ 'px';
+        box.style.top = clientY+ 'px';
+        box.style.width = '100px';
+        document.getElementById('app').appendChild(box)
+        //清空画板
+        document.getElementById('remove').addEventListener('click',()=>{
+          this.tagObj.recs.length = 0
+          this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+          this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+          this.drawOldRecs(this.tagObj.recs, this.ctx); // 画老的矩形
+          this.removeBox()
+        })
+        //添加图形
+        document.getElementById('add').addEventListener('click',()=>{
+          this.addToRecs(this.$refs.tagcanvas, e); //那么就添加框
+          this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+          this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+          this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+          this.removeBox()
+        })
+        // 保存图片
+        document.getElementById('install').addEventListener('click', ()=>{
+          this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+          this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+          this.tagObj.url = this.$refs.tagcanvas.toDataURL(); // 保存一下图片
+          this.visible2 = true
+          this.removeBox()
+        })
+      }
+    },
+    // 删除弹出矩形
+    removeBox(){
+      if (document.getElementById('creatBox')) {
+        document.getElementById('creatBox').remove()
+      }
+    },
     // 移动 OK
     mouseMove(e) {
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
-      // console.log(canvasPosition)
       var index;
       var side;
       this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
@@ -385,6 +442,15 @@ export default {
         ); // 在方框里就会出现四周九个可操作点
       }
       if (this.tagObj.draw) {
+        if(this.tagObj.x == canvasPosition.x ||
+          this.tagObj.y == canvasPosition.y
+        ){
+          console.log('约等于没有移动')
+        }else {
+          console.log('移动了')
+          this.tagObj.drawMove = true
+          this.removeBox()
+        }
         // 在方框外按下的状态 添加矩形
         this.drawRec(this.$refs.tagcanvas, this.ctx, e);
       }
@@ -420,10 +486,6 @@ export default {
     mousewheel (e) {
         e.preventDefault()
         const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-        // const realCanvasPosition = {
-        //     x:(canvasPosition.x - this.offset.x) / this.scale,
-        //     y:(canvasPosition.y - this.offset.y) / this.scale,
-        // }
         const dealtX = canvasPosition.x  * this.scaleStep // 当前坐标/缩放系数*缩放系数升值 也就是滚出了canvas视口的数量
         const dealtY = canvasPosition.y  * this.scaleStep
         if (e.wheelDelta > 0 && this.scale < this.maxScale) {
@@ -581,17 +643,11 @@ export default {
     // 添加矩形 OK
     addToRecs(canvas, e) {
       var rec = {};
-      // this.tagObj.x 按下时的x  e.offsetX 抬起时的x
-      // this.tagObj.y 按下时的y  e.offsetY 抬起时的y
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
       rec.x = this.tagObj.x > canvasPosition.x ? canvasPosition.x : this.tagObj.x;
       rec.y = this.tagObj.y > canvasPosition.y ? canvasPosition.y : this.tagObj.y;
-      rec.w = Math.abs(canvasPosition.x - this.tagObj.x);
-      rec.h = Math.abs(canvasPosition.y - this.tagObj.y);
+      rec.w = Math.abs(canvasPosition.x - this.tagObj.x) ||Math.floor(Math.random() * 200 + 60); // 弹框添加为0 加一个随机数
+      rec.h = Math.abs(canvasPosition.y - this.tagObj.y) ||Math.floor(Math.random() * 200 + 60); // 弹框添加为0 加一个随机数
       rec.color = [
         "rgb(254, 67, 101)",
         "rgb(252, 157, 154)",
@@ -603,15 +659,10 @@ export default {
       //rec.type = currentSelectedType;
       this.tagObj.newrecsObj = rec; //最后一个添加的矩形
       this.tagObj.recs.push(this.tagObj.newrecsObj); // 推向矩形数组里
-      this.tagObj.url = this.$refs.tagcanvas.toDataURL(); // 每次画完就保存一下图片
     },
     // 交叉辅助线 OK
     drawRuler(canvas, ctx, e) {
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
       ctx.beginPath();
       ctx.lineWidth = 1;
       ctx.strokeStyle = "#515050";
@@ -685,12 +736,7 @@ export default {
     },
     // 鼠标拖拽画新矩形 OK
     drawRec(canvas, ctx, e) {
-      // ctx.fillStyle = "rgb(121, 245, 57)";
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
       ctx.fillRect(
         this.tagObj.x,
         this.tagObj.y,
@@ -701,10 +747,6 @@ export default {
     // 拖拽让矩形移动 OK
     moveRec(canvas, rec, e) {
       const canvasPosition = this.getCanvasPosition(e,this.offset,this.scale)
-      // const realCanvasPosition = {
-      //     x:(canvasPosition.x - this.offset.x) / this.scale,
-      //     y:(canvasPosition.y - this.offset.y) / this.scale,
-      // }
       rec.x = this.tagObj.startX + canvasPosition.x - this.tagObj.x;
       rec.y = this.tagObj.startY + canvasPosition.y - this.tagObj.y;
     },
