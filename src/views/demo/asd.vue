@@ -1,4 +1,7 @@
 <template>
+  <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible" :mask='false' title="确认删除吗" @ok="handleOk" ok-text="确认" cancel-text="取消">
+    <p>删除后该元素不再显示！</p>
+  </a-modal>
   <a-modal @contextmenu.prevent="contextMenu($event)" v-model:visible="visible2" :mask='false' title="生成图片成功！" ok-text="下载" @ok="handleCopy" cancel-text="取消">
     <img style="width:300px" :src="tagObj.url" alt="">
   </a-modal>
@@ -18,11 +21,10 @@
         <div class="rectangle" id="rectangle"></div>
       </div>
     </div>
-    <div class="canvas_box">
     <canvas
       ref="tagcanvas"
-      width="900"
-      height="500"
+      width="844"
+      height="475"
       @mousedown="mouseDown($event)"
       @mouseup="mouseUp($event)"
       @mousemove="mouseMove($event)"
@@ -30,7 +32,6 @@
       @mouseout="mouseOut($event)"
       @mousewheel ="mousewheel($event)"
     ></canvas>
-    </div>
   </div>
 </template>
 <script>
@@ -122,45 +123,6 @@ export default {
         this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
         this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
         this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
-      } else {
-        // 是左击了并且击了图案
-        let tagC_s = this.$refs.tagcanvas.style;
-        let marginTop =
-          tagC_s.marginTop === ""
-            ? 0
-            : Number(
-                tagC_s.marginTop.substring(0, tagC_s.marginTop.length - 2)
-              );
-        let marginLeft =
-          tagC_s.marginLeft === ""
-            ? 0
-            : Number(
-                tagC_s.marginLeft.substring(0, tagC_s.marginLeft.length - 2)
-              );
-        console.log(marginLeft, "kanakn");
-        if (e.keyCode == 37) {
-          //左
-          console.log(marginLeft, "sdhjkfhksdjhkjdshkjfhjs--");
-          console.log(marginLeft--, "-------------");
-          this.$refs.tagcanvas.style.marginLeft = marginLeft-- + "px";
-        }
-        if (e.keyCode == 39) {
-          //右
-          console.log(marginLeft++, "marginLeft++");
-          this.$refs.tagcanvas.style.marginLeft = marginLeft++ + "px";
-        }
-        if (e.keyCode == 38) {
-          //上
-          console.log(marginTop, "sdhjkfhksdjhkjdshkjfhjs--");
-          console.log(marginTop--, "-------------");
-          this.$refs.tagcanvas.style.marginTop = marginTop-- + "px";
-        }
-        if (e.keyCode == 40) {
-          //下
-          console.log(marginTop, "sdhjkfhksdjhkjdshkjfhjs--");
-          console.log(marginTop++, "-------------");
-          this.$refs.tagcanvas.style.marginTop = marginTop++ + "px";
-        }
       }
     })
     // 拖拽
@@ -169,6 +131,15 @@ export default {
     this.drag("rectangle");
   },
   methods: {
+    handleOk(){
+      // 删除掉这个矩形的数据
+      this.tagObj.recs.splice(this.tagObj.index, 1);
+      this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
+      // this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
+      this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
+      this.tagObj.isRightClickIn = false; // 还原右键统计
+      this.visible = false
+    },
     handleCopy(){
       let imgData = this.tagObj.url; //填写你的base64
       this.downloadFile('canvas.png', imgData);
@@ -336,13 +307,11 @@ export default {
           this.tagObj.isRightClickIn = true;
           this.removeBox()
         }else {
-          this.removeBoxIn()
           this.tagObj.draw = true; // 这时候鼠标移动（mouseMove）就会添加矩形
         }
         return;
       }else {
         this.removeBox()
-        this.removeBoxIn()
       }
       if (this.tagObj.index >= 0) {
         //在矩形里，移动或者放缩
@@ -387,8 +356,7 @@ export default {
           this.tagObj.y,
           this.tagObj.radious
         );
-        // this.visible = true // 显示出确认弹层
-        this.creatBoxIn(e.clientX,e.clientY,e)
+        this.visible = true // 显示出确认弹层
         this.tagObj.isRightClickIn = false
         return;
       }
@@ -419,7 +387,7 @@ export default {
         this.tagObj.moveStart = false
       }
     },
-    // 添加外部弹出矩形
+    // 添加弹出矩形
     creatBox(clientX = 0,clientY = 0,e){
       if (document.getElementById('creatBox')) {
           document.getElementById('creatBox').style.left = clientX+ 'px';
@@ -444,7 +412,6 @@ export default {
           this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
           this.drawOldRecs(this.tagObj.recs, this.ctx); // 画老的矩形
           this.removeBox()
-          this.removeBoxIn()
         })
         //添加图形
         document.getElementById('add').addEventListener('click',()=>{
@@ -453,7 +420,6 @@ export default {
           this.drawRuler(this.$refs.tagcanvas, this.ctx, e); // 交叉辅助线
           this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
           this.removeBox()
-          this.removeBoxIn()
         })
         // 保存图片
         document.getElementById('install').addEventListener('click', ()=>{
@@ -462,34 +428,6 @@ export default {
           this.tagObj.url = this.$refs.tagcanvas.toDataURL(); // 保存一下图片
           this.visible2 = true
           this.removeBox()
-          this.removeBoxIn()
-        })
-      }
-    },
-    // 添加内部部弹出矩形
-    creatBoxIn(clientX = 0,clientY = 0){
-      if (document.getElementById('creatBoxIn')) {
-          document.getElementById('creatBoxIn').style.left = clientX+ 'px';
-          document.getElementById('creatBoxIn').style.top = clientY+ 'px';
-      }else {
-        let box =document.createElement('div')
-        box.innerHTML = `<div style='padding:4px;cursor:pointer' id='removeIn'>删除图形</div>`;
-        box.id = 'creatBoxIn';
-        box.style.backgroundColor = '#ffffff';
-        box.style.position = 'fixed';
-        box.style.left = clientX+ 'px';
-        box.style.top = clientY+ 'px';
-        box.style.width = '100px';
-        document.getElementById('app').appendChild(box)
-        //清空画板
-        document.getElementById('removeIn').addEventListener('click',()=>{
-          // 删除掉这个矩形的数据
-          this.tagObj.recs.splice(this.tagObj.index, 1);
-          this.clearCanvas(this.$refs.tagcanvas, this.ctx); // 边移动边清除
-          this.drawOldRecs(this.tagObj.recs, this.ctx); //画老的矩形
-          this.removeBoxIn()
-          this.tagObj.isRightClickIn = false; // 还原右键统计
-          this.visible = false
         })
       }
     },
@@ -497,12 +435,6 @@ export default {
     removeBox(){
       if (document.getElementById('creatBox')) {
         document.getElementById('creatBox').remove()
-      }
-    },
-    // 删除弹出矩形
-    removeBoxIn(){
-      if (document.getElementById('creatBoxIn')) {
-        document.getElementById('creatBoxIn').remove()
       }
     },
     // 移动 OK
@@ -547,7 +479,6 @@ export default {
           console.log('移动了')
           this.tagObj.drawMove = true
           this.removeBox()
-          this.removeBoxIn()
         }
         // 在方框外按下的状态 添加矩形
         this.drawRec(this.$refs.tagcanvas, this.ctx, e);
@@ -888,18 +819,9 @@ export default {
   width: 100%;
   height: 100vh;
 }
-.canvas_box {
-  width: 700px;
-  height: 400px;
-  overflow: hidden;
-  background-color: #c0e7ed;
-}
 canvas {
+  border: 1px solid #ccc;
   background-color: #c0e7ed;
-  margin-left: 0px;
-  margin-bottom: 0px;
-  margin-right: 0px;
-  margin-right: 0px;
 }
 html {
   margin: 0;
